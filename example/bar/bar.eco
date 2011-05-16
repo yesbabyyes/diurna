@@ -1,0 +1,3 @@
+<section id="bar">
+  <%- @body %>
+</section>

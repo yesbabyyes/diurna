@@ -145,7 +145,6 @@ buildScripts = (from, to) ->
 
     write to, source, (err) ->
       return util.error err if err
-      debug "Compiled scripts to #{to}"
 
 buildStyles = (from, to) ->
   fs.readFile from, "utf8", (err, str) ->
@@ -159,6 +158,5 @@ buildStyles = (from, to) ->
 
         write to, css, (err) ->
           return util.error err if err
-          debug "Compiled styles to #{to}"
 
 main process.argv

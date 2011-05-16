@@ -87,19 +87,24 @@ buildPages = (from, to) ->
       index: "#{basename}/index.html"
       content: "#{basename}/content.html"
 
-  traverse = (dir, outDir) ->
-    fs.readdir dir, (err, files) ->
+  traverse = (baseDir, outDir) ->
+    fs.readdir baseDir, (err, files) ->
       return util.error err if err
 
+      fileNames = []
+      dirNames = []
       for file in files
-        inFile = path.join(dir, file)
-        stats = fs.statSync inFile
+        if fs.statSync(path.join(baseDir, file)).isDirectory()
+          dirNames.push file
+        else
+          fileNames.push file
 
-        if stats.isDirectory()
-          traverse inFile, path.join(outDir, file)
-        else if path.extname(inFile) is ".md"
+      for file in fileNames
+        if path.extname(file) is ".md"
           basename = path.basename(file, ".md")
-          buildPage baseLayout, pageLayout(dir, basename), inFile, outDir, outFileNames(basename)
+          buildPage baseLayout, pageLayout(baseDir, basename), path.join(baseDir, file), outDir, outFileNames(basename)
+
+      traverse path.join(baseDir, dir), path.join(outDir, dir) for dir in dirNames
 
   traverse(from, to)
 

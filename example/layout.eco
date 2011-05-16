@@ -1,5 +1,12 @@
 <html>
 <body>
+<nav>
+  <% if @dirs.length: %>
+  <ul>
+    <% for dir in @dirs: %><li><%= dir %></li><% end %>
+  </ul>
+  <% end %>
+</nav>
 <%- @body %>
 </body>
 </html>

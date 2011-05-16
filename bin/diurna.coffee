@@ -99,18 +99,20 @@ buildPages = (from, to) ->
       for file in files
         if fs.statSync(path.join(baseDir, file)).isDirectory()
           dirNames.push file
-        else
+        else if path.extname(file) is ".md"
           fileNames.push file
 
       for file in fileNames
-        if path.extname(file) is ".md"
-          basename = path.basename(file, ".md")
-          buildPage
-            page: path.join(baseDir, file)
-            layout: baseLayout
-            pageLayout: pageLayout(baseDir, basename)
-            directory: outDir
-            fileNames: outFileNames(basename)
+        basename = path.basename(file, ".md")
+        buildPage
+          page: path.join(baseDir, file)
+          layout: baseLayout
+          pageLayout: pageLayout(baseDir, basename)
+          directory: outDir
+          fileNames: outFileNames(basename)
+          context:
+            dirs: dirNames
+            files: fileNames
 
       traverse path.join(baseDir, dir), path.join(outDir, dir) for dir in dirNames
 
@@ -118,7 +120,12 @@ buildPages = (from, to) ->
 
 buildPage = (options) ->
   render = (layout, body) ->
-    eco.render read(layout), body: body
+    context = _.extend options.context,
+      body: body
+      read: (file) ->
+        read path.join(options.directory, file)
+
+    eco.render read(layout), context
 
   content = markdown.parse read(options.page)
   body = if options.pageLayout then render options.pageLayout, content else content

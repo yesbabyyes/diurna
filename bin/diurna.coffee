@@ -10,6 +10,35 @@ stylus   = require "stylus"
 stitch   = require "stitch"
 _        = require "underscore"
 
+main = (args) ->
+  help = ->
+    opt.showHelp "diurna", (o) ->
+      switch o
+        when "h"
+          "Show this help"
+        when "o"
+          ["out_dir", "Output directory (defaults to current directory)"]
+        else
+          "Option '#{o}'"
+    return 0
+  
+  opt.setopt "o:h", args
+  
+  if opt.params().length < 3
+    return help()
+  
+  inDir = opt.params().pop()
+  outDir = process.cwd()
+  
+  opt.getopt (opt, param) ->
+    switch opt
+      when "h"
+        return help()
+      when "o"
+        outDir = param[0]
+  
+  build inDir, outDir
+  
 debug = ->
   util.debug.apply null, arguments if process.env.DEBUG
 
@@ -32,12 +61,17 @@ read = _.memoize (file) ->
     util.error "Missing file: #{file}"
 
 write = (file, str, next) ->
-  fs.mkdir path.dirname(file), 0755, (err) ->
-    return next(err) if err
-    fs.writeFile file, str, (err) ->
-      next(err)
+  path.exists file, (exists) ->
+    if not exists
+      base = ""
+      for dir in path.dirname(file).split("/")
+        base += "#{dir}/"
+        fs.mkdirSync base, 0755 unless path.existsSync base
+    
+    fs.writeFile file, str, next
 
 buildPages = (from, to) ->
+  debug "build pages" + from
   resolveLayout = (base, dir) ->
     customLayout = path.join(dir, "layout.eco")
     return customLayout if path.existsSync(customLayout)
@@ -91,14 +125,4 @@ buildStyles = (from, to) ->
           return util.error err if err
           debug "Compiled styles to #{to}"
 
-opt.setopt "i:o:", process.argv
-
-inDir = outDir = opt.params().pop()
-
-opt.getopt (opt, param) ->
-  switch opt
-    when "o"
-      outDir = param[0]
-
-build inDir, outDir
-
+main process.argv

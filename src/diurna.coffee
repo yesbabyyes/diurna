@@ -1,48 +1,17 @@
-#!/usr/bin/env coffee
 
 fs       = require "fs"
 path     = require "path"
 util     = require "util"
-opt      = require "getopt"
 markdown = require "markdown"
 eco      = require "eco"
 stylus   = require "stylus"
 stitch   = require "stitch"
 _        = require "underscore"
 
-main = (args) ->
-  help = ->
-    opt.showHelp "diurna", (o) ->
-      switch o
-        when "h"
-          "Show this help"
-        when "o"
-          ["out_dir", "Output directory (defaults to current directory)"]
-        else
-          "Option '#{o}'"
-    return 0
-  
-  opt.setopt "o:h", args
-  
-  if opt.params().length < 3
-    return help()
-  
-  from = opt.params().pop()
-  to = process.cwd()
-  
-  opt.getopt (opt, param) ->
-    switch opt
-      when "h"
-        return help()
-      when "o"
-        to = param[0]
-  
-  build from, to
-  
 debug = ->
   util.debug.apply null, arguments if process.env.DEBUG
 
-build = (from, to) ->
+exports.build = (from, to) ->
   scripts = path.join(from, "scripts")
   styles = path.join(from, "styles", "main.styl")
 
@@ -161,5 +130,3 @@ buildStyles = (from, to) ->
 
         write to, css, (err) ->
           return util.error err if err
-
-main process.argv

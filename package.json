@@ -1,13 +1,24 @@
 {
   "name": "diurna",
   "description": "A really simple cms",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "private": true,
   "author": "Linus G Thiel <linus@hanssonlarsson.se> (http://hanssonlarsson.se/)",
   "contributors": [ 
     { "name": "Linus G Thiel", "email": "linus@hanssonlarsson.se" }, 
     { "name": "Gunnar Hansson", "email": "gunnar@hanssonlarsson.se" }
   ],
+  "licenses": [{
+    "type": "MIT",
+    "url": "http://opensource.org/licenses/mit-license.php"
+  }],
+  "directories": {
+    "lib": "./lib"
+  },
+  "main": "./lib/diurna",
+  "bin": {
+    "diurna": "./bin/diurna"
+  },
   "dependencies": {
     "docco": "0.3.0",
     "eco": "1.0.3",

@@ -77,13 +77,15 @@ buildPages = (from, to) ->
     layout = path.join(dir, "#{file}.eco")
     return layout if path.existsSync(layout)
 
-  outFileName = (basename) ->
+  outFileNames = (basename) ->
     if basename is "index"
-      "index.html"
+      index: "index.html"
+      content: "content.html"
     #else if ".include" in basename
     #  "#{basename.replace(".include", "")}.html"
     else
-      "#{basename}/index.html"
+      index: "#{basename}/index.html"
+      content: "#{basename}/content.html"
 
   traverse = (dir, outDir) ->
     fs.readdir dir, (err, files) ->
@@ -97,21 +99,25 @@ buildPages = (from, to) ->
           traverse inFile, path.join(outDir, file)
         else if path.extname(inFile) is ".md"
           basename = path.basename(file, ".md")
-          buildPage baseLayout, pageLayout(dir, basename), inFile, path.join outDir, outFileName(basename)
+          buildPage baseLayout, pageLayout(dir, basename), inFile, outDir, outFileNames(basename)
 
   traverse(from, to)
 
-buildPage = (layout, pageLayout, from, to) ->
+buildPage = (layout, pageLayout, from, dir, fileNames) ->
   render = (layout, body) ->
     eco.render read(layout), body: body
 
-  debug "Compiling #{from} to #{to} using layout #{layout} and page layout #{pageLayout}"
-  body = markdown.parse read(from)
-  body = render pageLayout, body if pageLayout
+  debug "Compiling #{from} to #{dir} using layout #{layout} and page layout #{pageLayout}"
+  content = markdown.parse read(from)
+  body = if pageLayout then render pageLayout, content else content
   html = render layout, body
-  write to, html, (err) ->
+
+  write path.join(dir, fileNames.content), body, (err) ->
     return util.error if err
-    debug "Compiled #{from} to #{to} using layout #{layout} and page layout #{pageLayout}"
+
+  write path.join(dir, fileNames.index), html, (err) ->
+    return util.error if err
+    debug "Compiled #{from} to #{dir} using layout #{layout} and page layout #{pageLayout}"
 
 buildScripts = (from, to) ->
   package = stitch.createPackage paths: [ from ]

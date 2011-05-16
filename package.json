@@ -1,0 +1,27 @@
+{
+  "name": "diurna",
+  "description": "A really simple cms",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Linus G Thiel <linus@hanssonlarsson.se> (http://hanssonlarsson.se/)",
+  "contributors": [ 
+    { "name": "Linus G Thiel", "email": "linus@hanssonlarsson.se" }, 
+    { "name": "Gunnar Hansson", "email": "gunnar@hanssonlarsson.se" }
+  ],
+  "dependencies": {
+    "docco": "0.3.0",
+    "eco": "1.0.3",
+    "jasmine-node": "1.0.6",
+    "stylus": "0.12.3",
+    "nib": "0.0.7",
+    "canvas": "0.5.4",
+    "jsmin": "1.0.0",
+    "coffee-script": "1.1.1",
+    "markdown": "0.2.1",
+    "stitch": "0.3.1",
+    "underscore": "1.1.6",
+    "getopt": "0.1.0"
+  },
+  "keywords": ["cms", "static"],
+  "engines": { "node": "0.4.5" }
+}

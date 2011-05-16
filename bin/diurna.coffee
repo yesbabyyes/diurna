@@ -71,11 +71,11 @@ write = (file, str, next) ->
     fs.writeFile file, str, next
 
 buildPages = (from, to) ->
-  debug "build pages" + from
-  resolveLayout = (base, dir) ->
-    customLayout = path.join(dir, "layout.eco")
-    return customLayout if path.existsSync(customLayout)
-    path.join(base, "layout.eco")
+  baseLayout = path.join(from, "layout.eco")
+
+  pageLayout = (dir, file) ->
+    layout = path.join(dir, "#{file}.eco")
+    return layout if path.existsSync(layout)
 
   traverse = (dir, outDir) ->
     fs.readdir dir, (err, files) ->
@@ -88,18 +88,23 @@ buildPages = (from, to) ->
         if stats.isDirectory()
           traverse inFile, path.join(outDir, file)
         else if path.extname(inFile) is ".md"
-          outFile = path.join outDir, path.basename(file, ".md") + ".html"
-          buildPage resolveLayout(from, dir), inFile, outFile
+          basename = path.basename(file, ".md")
+          outFile = path.join outDir, basename + ".html"
+          buildPage baseLayout, pageLayout(dir, basename), inFile, outFile
 
   traverse(from, to)
 
-buildPage = (layout, from, to) ->
-  debug "Compiling #{from} to #{to} using layout #{layout}"
+buildPage = (layout, pageLayout, from, to) ->
+  render = (layout, body) ->
+    eco.render read(layout), body: body
+
+  debug "Compiling #{from} to #{to} using layout #{layout} and page layout #{pageLayout}"
   body = markdown.parse read(from)
-  html = eco.render read(layout), body: body
+  body = render pageLayout, body if pageLayout
+  html = render layout, body
   write to, html, (err) ->
     return util.error if err
-    debug "Compiled #{from} to #{to} using layout #{layout}"
+    debug "Compiled #{from} to #{to} using layout #{layout} and page layout #{pageLayout}"
 
 buildScripts = (from, to) ->
   package = stitch.createPackage paths: [ from ]

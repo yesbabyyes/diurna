@@ -43,14 +43,14 @@ debug = ->
   util.debug.apply null, arguments if process.env.DEBUG
 
 build = (from, to) ->
-  scriptsDir = path.join(from, "scripts")
-  stylesDir = path.join(from, "styles")
+  scripts = path.join(from, "scripts")
+  styles = path.join(from, "styles", "main.styl")
 
-  path.exists scriptsDir, (exists) ->
-    buildScripts scriptsDir, path.join(to, "scripts", "main.js") if exists
+  path.exists scripts, (exists) ->
+    buildScripts scripts, path.join(to, "scripts", "main.js") if exists
 
-  path.exists stylesDir, (exists) ->
-    buildStyles stylesDir, path.join(to, "styles", "main.css") if exists
+  path.exists styles, (exists) ->
+    buildStyles styles, path.join(to, "styles", "main.css") if exists
 
   buildPages from, to
 

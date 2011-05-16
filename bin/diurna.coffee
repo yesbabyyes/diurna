@@ -27,17 +27,17 @@ main = (args) ->
   if opt.params().length < 3
     return help()
   
-  inDir = opt.params().pop()
-  outDir = process.cwd()
+  from = opt.params().pop()
+  to = process.cwd()
   
   opt.getopt (opt, param) ->
     switch opt
       when "h"
         return help()
       when "o"
-        outDir = param[0]
+        to = param[0]
   
-  build inDir, outDir
+  build from, to
   
 debug = ->
   util.debug.apply null, arguments if process.env.DEBUG
@@ -94,25 +94,28 @@ buildPages = (from, to) ->
     fs.readdir baseDir, (err, files) ->
       return util.error err if err
 
-      fileNames = []
+      pages = []
       dirNames = []
+      includes = []
       for file in files
         if fs.statSync(path.join(baseDir, file)).isDirectory()
           dirNames.push file
+        else if ".include." in file
+          includes.push file
         else if path.extname(file) is ".md"
-          fileNames.push file
+          pages.push file
 
-      for file in fileNames
-        basename = path.basename(file, ".md")
+      for page in pages
+        basename = path.basename(page, ".md")
         buildPage
-          page: path.join(baseDir, file)
+          page: path.join(baseDir, page)
           layout: baseLayout
           pageLayout: pageLayout(baseDir, basename)
           directory: outDir
           fileNames: outFileNames(basename)
           context:
             dirs: dirNames
-            files: fileNames
+            pages: pages
 
       traverse path.join(baseDir, dir), path.join(outDir, dir) for dir in dirNames
 

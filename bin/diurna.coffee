@@ -77,6 +77,14 @@ buildPages = (from, to) ->
     layout = path.join(dir, "#{file}.eco")
     return layout if path.existsSync(layout)
 
+  outFileName = (basename) ->
+    if basename is "index"
+      "index.html"
+    #else if ".include" in basename
+    #  "#{basename.replace(".include", "")}.html"
+    else
+      "#{basename}/index.html"
+
   traverse = (dir, outDir) ->
     fs.readdir dir, (err, files) ->
       return util.error err if err
@@ -89,8 +97,7 @@ buildPages = (from, to) ->
           traverse inFile, path.join(outDir, file)
         else if path.extname(inFile) is ".md"
           basename = path.basename(file, ".md")
-          outFile = path.join outDir, basename + ".html"
-          buildPage baseLayout, pageLayout(dir, basename), inFile, outFile
+          buildPage baseLayout, pageLayout(dir, basename), inFile, path.join outDir, outFileName(basename)
 
   traverse(from, to)
 

@@ -66,8 +66,11 @@ write = (file, str, next) ->
       base = ""
       for dir in path.dirname(file).split("/")
         base += "#{dir}/"
-        fs.mkdirSync base, 0755 unless path.existsSync base
+        unless path.existsSync base
+          debug "Creating directory #{base}"
+          fs.mkdirSync base, 0755
     
+    debug "Writing file #{file}"
     fs.writeFile file, str, next
 
 buildPages = (from, to) ->
@@ -102,27 +105,30 @@ buildPages = (from, to) ->
       for file in fileNames
         if path.extname(file) is ".md"
           basename = path.basename(file, ".md")
-          buildPage baseLayout, pageLayout(baseDir, basename), path.join(baseDir, file), outDir, outFileNames(basename)
+          buildPage
+            page: path.join(baseDir, file)
+            layout: baseLayout
+            pageLayout: pageLayout(baseDir, basename)
+            directory: outDir
+            fileNames: outFileNames(basename)
 
       traverse path.join(baseDir, dir), path.join(outDir, dir) for dir in dirNames
 
   traverse(from, to)
 
-buildPage = (layout, pageLayout, from, dir, fileNames) ->
+buildPage = (options) ->
   render = (layout, body) ->
     eco.render read(layout), body: body
 
-  debug "Compiling #{from} to #{dir} using layout #{layout} and page layout #{pageLayout}"
-  content = markdown.parse read(from)
-  body = if pageLayout then render pageLayout, content else content
-  html = render layout, body
+  content = markdown.parse read(options.page)
+  body = if options.pageLayout then render options.pageLayout, content else content
+  html = render options.layout, body
 
-  write path.join(dir, fileNames.content), body, (err) ->
+  write path.join(options.directory, options.fileNames.content), body, (err) ->
     return util.error if err
 
-  write path.join(dir, fileNames.index), html, (err) ->
+  write path.join(options.directory, options.fileNames.index), html, (err) ->
     return util.error if err
-    debug "Compiled #{from} to #{dir} using layout #{layout} and page layout #{pageLayout}"
 
 buildScripts = (from, to) ->
   package = stitch.createPackage paths: [ from ]

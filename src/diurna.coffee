@@ -8,9 +8,6 @@ stylus   = require "stylus"
 stitch   = require "stitch"
 _        = require "underscore"
 
-debug = ->
-  util.debug.apply null, arguments if process.env.DEBUG
-
 exports.build = (from, to) ->
   scripts = path.join(from, "scripts")
   styles = path.join(from, "styles", "main.styl")
@@ -22,25 +19,6 @@ exports.build = (from, to) ->
     buildStyles styles, path.join(to, "styles", "main.css") if exists
 
   buildPages from, to
-
-read = _.memoize (file) ->
-  try
-    fs.readFileSync file, "utf8"
-  catch e
-    util.error "Missing file: #{file}"
-
-write = (file, str, next) ->
-  path.exists file, (exists) ->
-    if not exists
-      base = ""
-      for dir in path.dirname(file).split("/")
-        base += "#{dir}/"
-        unless path.existsSync base
-          debug "Creating directory #{base}"
-          fs.mkdirSync base, 0755
-    
-    debug "Writing file #{file}"
-    fs.writeFile file, str, next
 
 buildPages = (from, to) ->
   baseLayout = path.join(from, "layout.eco")
@@ -130,3 +108,26 @@ buildStyles = (from, to) ->
 
         write to, css, (err) ->
           return util.error err if err
+
+read = _.memoize (file) ->
+  try
+    fs.readFileSync file, "utf8"
+  catch e
+    util.error "Missing file: #{file}"
+
+write = (file, str, next) ->
+  path.exists file, (exists) ->
+    if not exists
+      base = ""
+      for dir in path.dirname(file).split("/")
+        base += "#{dir}/"
+        unless path.existsSync base
+          debug "Creating directory #{base}"
+          fs.mkdirSync base, 0755
+    
+    debug "Writing file #{file}"
+    fs.writeFile file, str, next
+
+debug = ->
+  util.debug.apply null, arguments if process.env.DEBUG
+

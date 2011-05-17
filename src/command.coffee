@@ -10,17 +10,20 @@ help = ->
         "Show this help"
       when "o"
         ["out_dir", "Output directory (defaults to current directory)"]
+      when "v"
+        "Verbose"
       else
         "Option '#{o}'"
   return 0
 
-opt.setopt "o:h", process.argv
+opt.setopt "o:hv", process.argv
 
 if opt.params().length < 3
   return help()
 
 from = opt.params().pop()
 to = process.cwd()
+verbosity = 0
 
 opt.getopt (opt, param) ->
   switch opt
@@ -28,5 +31,7 @@ opt.getopt (opt, param) ->
       return help()
     when "o"
       to = param[0]
+    when "v"
+      verbosity = param
 
-diurna.build from, to
+diurna.build from, to, verbosity

@@ -8,7 +8,11 @@ stylus   = require "stylus"
 stitch   = require "stitch"
 _        = require "underscore"
 
-exports.build = (from, to) ->
+_verbosity = 0
+
+exports.build = (from, to, verbosity) ->
+  _verbosity = verbosity
+
   scripts = path.join(from, "scripts")
   styles = path.join(from, "styles", "main.styl")
 
@@ -122,12 +126,12 @@ write = (file, str, next) ->
       for dir in path.dirname(file).split("/")
         base += "#{dir}/"
         unless path.existsSync base
-          debug "Creating directory #{base}"
+          log "Creating directory #{base}"
           fs.mkdirSync base, 0755
     
-    debug "Writing file #{file}"
+    log "Writing file #{file}"
     fs.writeFile file, str, next
 
-debug = ->
-  util.debug.apply null, arguments if process.env.DEBUG
+log = ->
+  console.log.apply null, arguments if _verbosity
 

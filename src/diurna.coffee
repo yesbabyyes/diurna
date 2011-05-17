@@ -11,7 +11,7 @@ _        = require "underscore"
 _verbosity = 0
 
 exports.build = (from, to, verbosity) ->
-  _verbosity = verbosity
+  _verbosity = verbosity if verbosity
 
   scripts = path.join(from, "scripts")
   styles = path.join(from, "styles", "main.styl")

@@ -1,5 +1,22 @@
 <!doctype html>
-<html>
+<!--[if lt IE 7 ]>
+<html lang="en" dir="ltr" class="ie ie6">
+<![endif]-->
+<!--[if IE 7 ]>
+<html lang="en" dir="ltr" class="ie ie7">
+<![endif]-->
+<!--[if IE 8 ]>
+<html lang="en" dir="ltr" class="ie ie8">
+<![endif]-->
+<!--[if IE 9 ]>
+<html lang="en" dir="ltr" class="ie ie9">
+<![endif]-->
+<!--[if gt IE 9]>
+<html lang="en" dir="ltr" class="ie">
+<![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" dir="ltr">
+<!--<![endif]-->
   <head>
     <title>Acta Diurna</title>
     <!--[if lt IE 9]><script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->

@@ -10,6 +10,12 @@ _        = require "underscore"
 
 _verbosity = 0
 
+RESERVED_NAMES = [
+  "styles"
+  "scripts"
+  "404.eco"
+]
+
 exports.build = (from, to, verbosity) ->
   _verbosity = verbosity if verbosity
 
@@ -23,6 +29,21 @@ exports.build = (from, to, verbosity) ->
     buildStyles styles, path.join(to, "styles", "main.css") if exists
 
   buildPages from, to
+
+slugify = (str) ->
+  replaces =
+    'a': /[åäàáâ]/g
+    'c': /ç/g
+    'e': /[éèëê]/g
+    'i': /[ìíïî]/g
+    'u': /[üû]/g
+    'o': /[öô]/g
+    '-': new RegExp ' ', 'g'
+
+  slug = str.toLowerCase()
+  slug = slug.replace(regex, replacement) for replacement, regex of replaces
+
+  slug.replace /[^\w-\.]/g, ''
 
 buildPages = (from, to) ->
   baseLayout = path.join(from, "layout.eco")
@@ -41,51 +62,106 @@ buildPages = (from, to) ->
       index: "#{basename}/index.html"
       content: "#{basename}/content.html"
 
-  traverse = (baseDir, outDir) ->
-    fs.readdir baseDir, (err, files) ->
+  createNode = (parent, file) ->
+    node = parent.files[file] = {}
+    node.name = file
+    node.path = path.join parent.path, slugify(path.basename(file))
+    return node
+
+  traverse = (options, parent) ->
+    options.hierarchy ?= parent
+    currentDir = path.join(options.baseDir, parent.path)
+
+    fs.readdir currentDir, (err, files) ->
       return util.error err if err
 
-      pages = []
-      dirNames = []
-      includes = []
-      for file in files
-        if fs.statSync(path.join(baseDir, file)).isDirectory()
-          dirNames.push file
-        else if ".include." in file
-          includes.push file
-        else if path.extname(file) is ".md"
-          pages.push file
+      pages = {}
+      dirNames = {}
 
-      for page in pages
+      for file in files when file not in RESERVED_NAMES
+        filePath = path.join(currentDir, file)
+
+        node = createNode(parent, file)
+        extension = path.extname(file)
+
+        if fs.statSync(filePath).isDirectory()
+          node.files = []
+          dirNames[file] = node
+        else if file is "layout.eco"
+          parent.layouts ?= []
+          parent.layouts.push filePath
+        else if ".include" in file
+          log "include: #{file}"
+          parent.includes ?= []
+          parent.includes.push file
+        else if extension is ".md"
+          log "page: #{file}"
+          pages[filePath] = node
+        else
+          src = filePath
+          dst = path.join(options.outDir, parent.path, file)
+
+          fs.link src, dst, (err) ->
+            return util.error err if err
+            log "Linked from #{src} to #{dst}"
+
+      for page, node of pages
         basename = path.basename(page, ".md")
+        layouts = parent.layouts or []
+        pageLayout = path.join(currentDir, "#{basename}.eco")
+        layouts.push pageLayout if path.existsSync pageLayout
+        context = {}
+        _.extend context, node
+        _.extend context,
+          parent: parent
+          hierarchy: options.hierarchy
+
         buildPage
-          page: path.join(baseDir, page)
-          layout: baseLayout
-          pageLayout: pageLayout(baseDir, basename)
-          directory: outDir
+          page: page
+          body: markdown.parse read(page)
+          directory: path.join(options.outDir, parent.path)
+          layouts: layouts
           fileNames: outFileNames(basename)
-          context:
-            dirs: dirNames
-            pages: pages
+          context: context
 
-      traverse path.join(baseDir, dir), path.join(outDir, dir) for dir in dirNames
+      for dirName, node of dirNames
+        node.layouts = parent.layouts
+        traverse options, node
 
-  traverse(from, to)
+  root =
+    name: "__root__"
+    path: ""
+    files: []
+
+  traverse
+    baseDir: from
+    outDir: to
+  , root
+
+getLayout = _.memoize (layout) -> require layout
 
 buildPage = (options) ->
-  render = (layout, body) ->
-    context = _.extend options.context,
-      body: body
-      read: (file) ->
-        read path.join(options.directory, file)
+  helpers =
+    nav: (node) -> (key for key, value of node.files when 'files' of value)
+    read: (file) -> read path.join(options.directory, file)
 
-    eco.render read(layout), context
+  render = (layouts, body) ->
+    return body unless layouts.length
 
-  content = markdown.parse read(options.page)
-  body = if options.pageLayout then render options.pageLayout, content else content
-  html = render options.layout, body
+    context = {}
+    _.extend context, options.context
+    _.extend context, helpers
+    context.dirs = helpers.nav(context.hierarchy)
+    context.siblings = helpers.nav(context.parent)
+    context.body = body if body?
 
-  write path.join(options.directory, options.fileNames.content), body, (err) ->
+    [remainingLayouts..., layout] = layouts
+    render remainingLayouts, getLayout(layout)(context)
+
+  html = render options.layouts, options.body
+  log html
+
+  write path.join(options.directory, options.fileNames.content), options.body, (err) ->
     return util.error if err
 
   write path.join(options.directory, options.fileNames.index), html, (err) ->

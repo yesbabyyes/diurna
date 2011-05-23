@@ -4,7 +4,7 @@ Diurna
 `diurna` is a really simple cms. It builds a page structure from markdown files and [eco](https://github.com/sstephenson/eco) templates, css from [Stylus](http://learnboost.github.com/stylus/) and javascript and coffeescript with [stitch](https://github.com/sstephenson/stitch).
 
 ## Version
-0.1.0
+0.1.1
 
 ## Installation
 

@@ -90,7 +90,7 @@ buildPages = (from, to) ->
         else if file is "layout.eco"
           parent.layouts ?= []
           parent.layouts.push filePath
-        else if ".include" in file
+        else if file.match /\.include\./
           log "include: #{file}"
           parent.includes ?= []
           parent.includes.push file
@@ -159,7 +159,6 @@ buildPage = (options) ->
     render remainingLayouts, getLayout(layout)(context)
 
   html = render options.layouts, options.body
-  log html
 
   write path.join(options.directory, options.fileNames.content), options.body, (err) ->
     return util.error if err

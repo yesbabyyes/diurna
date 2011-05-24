@@ -78,7 +78,7 @@ buildPages = (from, to) ->
     return node
 
   traverse = (options, parent) ->
-    options.hierarchy ?= parent
+    options.root ?= parent
     currentDir = path.join(options.baseDir, parent.path)
 
     fs.readdir currentDir, (err, files) ->
@@ -123,7 +123,7 @@ buildPages = (from, to) ->
         _.extend context, node
         _.extend context,
           parent: parent
-          hierarchy: options.hierarchy
+          root: options.root
 
         buildPage
           page: page
@@ -160,7 +160,7 @@ buildPage = (options) ->
     context = {}
     _.extend context, options.context
     _.extend context, helpers
-    context.dirs = helpers.nav(context.hierarchy)
+    context.dirs = helpers.nav(context.root)
     context.siblings = helpers.nav(context.parent)
     context.body = body if body?
 

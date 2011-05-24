@@ -52,6 +52,15 @@ buildPages = (from, to) ->
     layout = path.join(dir, "#{file}.eco")
     return layout if path.existsSync(layout)
 
+  # Parse the title from a filename, meaning strip any leading numbers,
+  # periods, dashes and whitespace.
+  #
+  # > parseTitle("1. My cool blog post")
+  # My cool blog post
+  parseTitle = (filename) ->
+    re = /^[\d\.-\s]*(.*)/
+    filename.match(re)[1]
+
   filenames = (basename) ->
     if basename is "index"
       index: "index.html"
@@ -62,10 +71,10 @@ buildPages = (from, to) ->
       index: "#{basename}/index.html"
       content: "#{basename}/content.html"
 
-  createNode = (parent, file) ->
+  createNode = (parent, file, ext = ".md") ->
     node = parent.files[file] = {}
-    node.name = path.basename(file, ".md")
-    node.path = path.join parent.path, slugify(node.name)
+    node.title = parseTitle path.basename(file, ext)
+    node.path = path.join parent.path, slugify(node.title)
     return node
 
   traverse = (options, parent) ->

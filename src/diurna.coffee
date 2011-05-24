@@ -64,8 +64,8 @@ buildPages = (from, to) ->
 
   createNode = (parent, file) ->
     node = parent.files[file] = {}
-    node.name = file
-    node.path = path.join parent.path, slugify(path.basename(file))
+    node.name = path.basename(file, ".md")
+    node.path = path.join parent.path, slugify(node.name)
     return node
 
   traverse = (options, parent) ->
@@ -121,7 +121,7 @@ buildPages = (from, to) ->
           body: markdown.parse read(page)
           directory: path.join(options.outDir, parent.path)
           layouts: layouts
-          fileNames: outFileNames(basename)
+          fileNames: outFileNames(path.basename(node.path))
           context: context
 
       for dirName, node of dirNames

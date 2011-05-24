@@ -52,7 +52,7 @@ buildPages = (from, to) ->
     layout = path.join(dir, "#{file}.eco")
     return layout if path.existsSync(layout)
 
-  outFileNames = (basename) ->
+  filenames = (basename) ->
     if basename is "index"
       index: "index.html"
       content: "content.html"
@@ -121,7 +121,7 @@ buildPages = (from, to) ->
           body: markdown.parse read(page)
           directory: path.join(options.outDir, parent.path)
           layouts: layouts
-          fileNames: outFileNames(path.basename(node.path))
+          filenames: filenames(path.basename(node.path))
           context: context
 
       for dirName, node of dirNames
@@ -160,10 +160,10 @@ buildPage = (options) ->
 
   html = render options.layouts, options.body
 
-  write path.join(options.directory, options.fileNames.content), options.body, (err) ->
+  write path.join(options.directory, options.filenames.content), options.body, (err) ->
     return util.error if err
 
-  write path.join(options.directory, options.fileNames.index), html, (err) ->
+  write path.join(options.directory, options.filenames.index), html, (err) ->
     return util.error if err
 
 buildScripts = (from, to) ->

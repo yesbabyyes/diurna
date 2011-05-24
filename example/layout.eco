@@ -27,7 +27,7 @@
     <script type="text/javascript">require("main")</script>
   </head>
   <body>
-    <nav><% if @dirs.length: %><ul><% for dir in @dirs: %><li><%= dir %></li><% end %></ul><% end %></nav>
+    <nav><% if @dirs.length: %><ul><% for dir in @dirs: %><li><a href="/<%= dir.path %>"><%= dir.title %></a></li><% end %></ul><% end %></nav>
     <%- @body %>
   </body>
 </html>

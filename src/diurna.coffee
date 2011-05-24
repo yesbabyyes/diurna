@@ -151,7 +151,7 @@ getLayout = _.memoize (layout) -> require layout
 
 buildPage = (options) ->
   helpers =
-    nav: (node) -> (key for key, value of node.files when 'files' of value)
+    nav: (node) -> (value for key, value of node.files when 'files' of value)
     read: (file) -> read path.join(options.directory, file)
 
   render = (layouts, body) ->

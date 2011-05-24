@@ -71,9 +71,9 @@ buildPages = (from, to) ->
       index: "#{basename}/index.html"
       content: "#{basename}/content.html"
 
-  createNode = (parent, file, ext = ".md") ->
+  createNode = (parent, file) ->
     node = parent.files[file] = {}
-    node.title = parseTitle path.basename(file, ext)
+    node.title = parseTitle path.basename(file, path.extname(file))
     node.path = path.join parent.path, slugify(node.title)
     return node
 

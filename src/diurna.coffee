@@ -94,18 +94,21 @@ buildPages = (from, to) ->
         extension = path.extname(file)
 
         if fs.statSync(filePath).isDirectory()
+          node.type = "directory"
           node.files = []
           dirNames[file] = node
         else if file is "layout.eco"
           parent.layouts ?= []
           parent.layouts.push filePath
         else if file.match /\.include\./
-          log "include: #{file}"
+          node.type = "include"
           parent.includes ?= []
           parent.includes.push file
         else if extension is ".md"
-          log "page: #{file}"
+          node.type = if file is "index.md" then "index" else "page"
           pages[filePath] = node
+        else if extension is ".eco"
+          node.type = "layout"
         else
           src = filePath
           dst = path.join(options.outDir, parent.path, file)
@@ -151,7 +154,7 @@ getLayout = _.memoize (layout) -> require layout
 
 buildPage = (options) ->
   helpers =
-    nav: (node) -> (value for key, value of node.files when 'files' of value)
+    nav: (root) -> (node for key, node of root.files when node.type in ["directory", "page"])
     read: (file) -> read path.join(options.directory, file)
 
   render = (layouts, body) ->

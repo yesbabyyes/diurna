@@ -1,0 +1,4 @@
+<article><%- @body %></article>
+<aside class="nav"><nav class="sub">
+  <% if @siblings.length: %><ul><% for sibling in @siblings: %><li><a href="/<%= sibling.path %>"><%= sibling.title %></a></li><% end %></ul><% end %>
+</nav></aside>

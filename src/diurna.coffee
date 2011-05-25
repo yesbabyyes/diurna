@@ -119,7 +119,7 @@ buildPages = (from, to) ->
 
       for page, node of pages
         basename = path.basename(page, ".md")
-        layouts = parent.layouts or []
+        layouts = if parent.layouts then [].concat parent.layouts else []
         pageLayout = path.join(currentDir, "#{basename}.eco")
         layouts.push pageLayout if path.existsSync pageLayout
         context = {}

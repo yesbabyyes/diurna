@@ -194,6 +194,7 @@ buildStyles = (from, to) ->
     stylus(str)
       .set("filename", from)
       .include(require("nib").path)
+      .import("nib")
       .render (err, css) ->
         return util.error err if err
 

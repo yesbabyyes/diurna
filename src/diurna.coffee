@@ -75,18 +75,20 @@ buildPages = (from, to) ->
   createNode = (parent, file) ->
     node = parent.files[file] = {}
     node.title = parseTitle path.basename(file, path.extname(file))
-    node.path = path.join parent.path, slugify(node.title)
+    node.name = slugify(node.title)
+    node.path = path.join parent.path, node.name
+    node.filePath = path.join parent.filePath, file
     return node
 
   traverse = (options, parent) ->
     options.root ?= parent
-    currentDir = path.join(options.baseDir, parent.path)
+    currentDir = path.join(options.baseDir, parent.filePath)
 
     fs.readdir currentDir, (err, files) ->
       return util.error err if err
 
       pages = {}
-      dirNames = {}
+      dirNames = []
 
       for file in files when file not in RESERVED_NAMES
         filePath = path.join(currentDir, file)
@@ -100,7 +102,7 @@ buildPages = (from, to) ->
         if stat.isDirectory()
           node.type = "directory"
           node.files = []
-          dirNames[file] = node
+          dirNames.push node
         else if file is "layout.eco"
           parent.layouts ?= []
           parent.layouts.push filePath
@@ -133,14 +135,13 @@ buildPages = (from, to) ->
           root: options.root
 
         buildPage
-          page: page
           body: markdown.parse read(page)
           directory: path.join(options.outDir, parent.path)
           layouts: layouts
-          filenames: filenames(path.basename(node.path))
+          filenames: filenames(node.name)
           context: context
 
-      for dirName, node of dirNames
+      for node in dirNames
         node.layouts = parent.layouts
         traverse options, node
 

@@ -1,12 +1,13 @@
 
-fs       = require "fs"
-path     = require "path"
-util     = require "util"
-markdown = require "markdown"
-eco      = require "eco"
-stylus   = require "stylus"
-stitch   = require "stitch"
-_        = require "underscore"
+fs         = require "fs"
+path       = require "path"
+util       = require "util"
+markdown   = require "markdown"
+eco        = require "eco"
+stylus     = require "stylus"
+stitch     = require "stitch"
+formatDate = require "dateformat"
+_          = require "underscore"
 
 _verbosity = 0
 
@@ -92,8 +93,11 @@ buildPages = (from, to) ->
 
         node = createNode(parent, file)
         extension = path.extname(file)
+        stat = fs.statSync(filePath)
+        node.ctime = stat.ctime
+        node.mtime = stat.mtime
 
-        if fs.statSync(filePath).isDirectory()
+        if stat.isDirectory()
           node.type = "directory"
           node.files = []
           dirNames[file] = node
@@ -155,7 +159,13 @@ getLayout = _.memoize (layout) -> require layout
 buildPage = (options) ->
   helpers =
     nav: (root) -> (node for key, node of root.files when node.type in ["directory", "page"])
-    read: (file) -> read path.join(options.directory, file)
+    include: (file) -> read path.join(options.directory, file)
+    formatDate: formatDate
+    humanDate: (date) ->
+      day = 24 * 60 * 60 * 1000
+      diff = new Date() - date
+      format = if diff < day then "HH:MM" else "yyyy-mm-dd HH:MM"
+      formatDate date, format
 
   render = (layouts, body) ->
     return body unless layouts.length

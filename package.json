@@ -31,7 +31,8 @@
     "markdown": "0.2.1",
     "stitch": "0.3.1",
     "underscore": "1.1.6",
-    "getopt": "0.1.0"
+    "getopt": "0.1.0",
+    "dateformat": "1.0.1-1.2.3"
   },
   "keywords": ["cms", "static"],
   "engines": { "node": "0.4.5" }

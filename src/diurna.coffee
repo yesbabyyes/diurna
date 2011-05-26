@@ -115,9 +115,12 @@ buildPages = (from, to) ->
           src = filePath
           dst = path.join(options.outDir, parent.path, file)
 
-          fs.link src, dst, (err) ->
-            return util.error err if err
-            log "Linked from #{src} to #{dst}"
+          path.exists dst, (exists) ->
+            if not exists
+              mkdirs path.dirname(dst)
+              fs.link src, dst, (err) ->
+                return util.error err if err
+                log "Linked from #{src} to #{dst}"
 
       for page, node of pages
         basename = path.basename(page, ".md")
@@ -216,16 +219,19 @@ read = _.memoize (file) ->
 
 write = (file, str, next) ->
   path.exists file, (exists) ->
-    if not exists
-      base = ""
-      for dir in path.dirname(file).split("/")
-        base += "#{dir}/"
-        unless path.existsSync base
-          log "Creating directory #{base}"
-          fs.mkdirSync base, 0755
+    mkdirs path.dirname(file) unless exists
     
     log "Writing file #{file}"
     fs.writeFile file, str, next
+
+mkdirs = (pathName) ->
+  base = ""
+  for dir in pathName.split("/")
+    base += "#{dir}/"
+
+    unless path.existsSync base
+      log "Creating directory #{base}"
+      fs.mkdirSync base, 0755
 
 log = ->
   console.log.apply null, arguments if _verbosity

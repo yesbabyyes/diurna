@@ -88,6 +88,7 @@ buildPages = (from, to) ->
 
       for file in files when file not in RESERVED_NAMES
         filePath = path.join(currentDir, file)
+        log "Processing #{filePath}"
 
         node = createNode(parent, file)
         extension = path.extname(file)
@@ -95,7 +96,10 @@ buildPages = (from, to) ->
         node.ctime = stat.ctime
         node.mtime = stat.mtime
 
-        if stat.isDirectory()
+        if file.indexOf(".") is 0
+          log "Skipping #{file}"
+          continue
+        else if stat.isDirectory()
           node.type = "directory"
           node.files = []
           dirNames.push node
@@ -112,15 +116,7 @@ buildPages = (from, to) ->
         else if extension is ".eco"
           node.type = "layout"
         else
-          src = filePath
-          dst = path.join(options.outDir, parent.path, file)
-
-          path.exists dst, (exists) ->
-            if not exists
-              mkdirs path.dirname(dst)
-              fs.link src, dst, (err) ->
-                return util.error err if err
-                log "Linked from #{src} to #{dst}"
+          link filePath, path.join(options.outDir, parent.path, file)
 
       for page, node of pages
         basename = path.basename(page, ".md")
@@ -187,6 +183,14 @@ buildPage = (options) ->
 
   write path.join(options.directory, options.filenames.index), html, (err) ->
     return util.error if err
+
+link = (src, dst) ->
+  path.exists dst, (exists) ->
+    if not exists
+      mkdirs path.dirname(dst)
+      fs.link src, dst, (err) ->
+        return util.error err if err
+        log "Linked from #{src} to #{dst}"
 
 buildScripts = (from, to) ->
   package = stitch.createPackage paths: [ from ]

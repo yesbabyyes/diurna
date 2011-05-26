@@ -14,7 +14,7 @@ _verbosity = 0
 RESERVED_NAMES = [
   "styles"
   "scripts"
-  "404.eco"
+  "images"
 ]
 
 exports.build = (from, to, verbosity) ->

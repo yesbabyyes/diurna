@@ -21,8 +21,8 @@ opt.setopt "o:hv", process.argv
 if opt.params().length < 3
   return help()
 
-to = process.cwd()
-from = path.join(to, opt.params().pop())
+to = cwd = process.cwd()
+from = path.join(cwd, opt.params().pop())
 verbosity = 0
 
 opt.getopt (opt, param) ->

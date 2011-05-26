@@ -47,19 +47,15 @@ slugify = (str) ->
   slug.replace /[^\w-\.]/g, ''
 
 buildPages = (from, to) ->
-  baseLayout = path.join(from, "layout.eco")
-
-  pageLayout = (dir, file) ->
-    layout = path.join(dir, "#{file}.eco")
-    return layout if path.existsSync(layout)
-
   # Parse the title from a filename, meaning strip any leading numbers,
-  # periods, dashes and whitespace.
+  # if followed by period or dash.
   #
   # > parseTitle("1. My cool blog post")
   # My cool blog post
+  # > parseTitle("1 My cool blog post")
+  # 1 My cool blog post
   parseTitle = (filename) ->
-    re = /^[\d\.-\s]*(.*)/
+    re = /^(?:\d+\s*(?:\.|-)\s*)?(.*)/
     filename.match(re)[1]
 
   filenames = (basename) ->

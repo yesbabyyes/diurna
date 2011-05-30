@@ -14,7 +14,6 @@ _verbosity = 0
 RESERVED_NAMES = [
   "styles"
   "scripts"
-  "images"
 ]
 
 exports.build = (from, to, verbosity) ->
@@ -193,7 +192,9 @@ link = (src, dst) ->
         log "Linked from #{src} to #{dst}"
 
 buildScripts = (from, to) ->
-  package = stitch.createPackage paths: [ from ]
+  package = stitch.createPackage
+    paths: [ from ]
+    compress: process.env.NODE_ENV is "production"
 
   package.compile (err, source) ->
     return util.error err if err
@@ -207,6 +208,7 @@ buildStyles = (from, to) ->
 
     stylus(str)
       .set("filename", from)
+      .set("compress", process.env.NODE_ENV is "production")
       .use(require("nib")())
       .import("nib")
       .render (err, css) ->

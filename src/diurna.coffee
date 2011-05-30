@@ -102,9 +102,9 @@ buildPages = (from, to) ->
           node.type = "directory"
           node.files = []
           dirNames.push node
-        else if file is "layout.eco"
-          parent.layouts ?= []
-          parent.layouts.push filePath
+        else if file is "template.eco"
+          parent.templates ?= []
+          parent.templates.push filePath
         else if file.match /\.include\./
           node.type = "include"
           parent.includes ?= []
@@ -113,15 +113,15 @@ buildPages = (from, to) ->
           node.type = if file is "index.md" then "index" else "page"
           pages[filePath] = node
         else if extension is ".eco"
-          node.type = "layout"
+          node.type = "template"
         else
           link filePath, path.join(options.outDir, parent.path, file)
 
       for page, node of pages
         basename = path.basename(page, ".md")
-        layouts = if parent.layouts then [].concat parent.layouts else []
-        pageLayout = path.join(currentDir, "#{basename}.eco")
-        layouts.push pageLayout if path.existsSync pageLayout
+        templates = if parent.templates then [].concat parent.templates else []
+        pageTemplate = path.join(currentDir, "#{basename}.eco")
+        templates.push pageTemplate if path.existsSync pageTemplate
         context = {}
         _.extend context, node
         _.extend context,
@@ -131,12 +131,13 @@ buildPages = (from, to) ->
         buildPage
           body: markdown.parse read(page)
           directory: path.join(options.outDir, parent.path)
-          layouts: layouts
+          layout: path.join(options.baseDir, "layout.eco")
+          templates: templates
           filenames: filenames(node.name)
           context: context
 
       for node in dirNames
-        node.layouts = parent.layouts
+        node.templates = parent.templates
         traverse options, node
 
   root =
@@ -149,7 +150,7 @@ buildPages = (from, to) ->
     outDir: to
   , root
 
-getLayout = _.memoize (layout) -> require layout
+getTemplate = _.memoize (template) -> require template
 
 buildPage = (options) ->
   helpers =
@@ -162,8 +163,8 @@ buildPage = (options) ->
       format = if diff < day then "HH:MM" else "yyyy-mm-dd HH:MM"
       formatDate date, format
 
-  render = (layouts, body) ->
-    return body unless layouts.length
+  render = (templates, body) ->
+    return body unless templates.length
 
     context = {}
     _.extend context, options.context
@@ -172,12 +173,17 @@ buildPage = (options) ->
     context.siblings = helpers.nav(context.parent)
     context.body = body if body?
 
-    [remainingLayouts..., layout] = layouts
-    render remainingLayouts, getLayout(layout)(context)
+    [remainingTemplates..., template] = templates
+    render remainingTemplates, getTemplate(template)(context)
 
-  html = render options.layouts, options.body
+  body = render options.templates, options.body
 
-  write path.join(options.directory, options.filenames.content), options.body, (err) ->
+  if path.existsSync options.layout
+    html = render [options.layout], body
+  else
+    html = body
+
+  write path.join(options.directory, options.filenames.content), body, (err) ->
     return util.error if err
 
   write path.join(options.directory, options.filenames.index), html, (err) ->

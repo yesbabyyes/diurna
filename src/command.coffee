@@ -1,37 +1,38 @@
+usage = '''Usage: $0 [OPTION]...
+Build a website from templates.
+Example: $0 -o html/ files/'''
+
+options =
+  h:
+    alias: "help"
+    description: "Show help"
+  o:
+    alias: "out"
+    description: "Output directory"
+    default: "html"
+  v:
+    alias: "verbose"
+    description: "Verbose output"
+  i:
+    alias: "import"
+    description: "Blog platform to import from (posterous)"
+
 path = require "path"
 fs   = require "fs"
-opt  = require "getopt"
+argv = require("optimist")
+        .usage(usage)
+        .options(options)
+        .check((argv)->
+          throw "I'm not friends with #{argv.i} yet. Set up a date?" if argv.i and argv.i isnt "posterous")
+        .argv
 diurna = require "./diurna"
+importer = require "./import"
 
-help = ->
-  opt.showHelp "Usage:", (o) ->
-    switch o
-      when "h"
-        "Show this help"
-      when "o"
-        ["out_dir", "Output directory (defaults to current directory)"]
-      when "v"
-        "Verbose"
-      else
-        "Option '#{o}'"
-  return 0
+cwd = process.cwd()
 
-opt.setopt "o:hv", process.argv
+verbosity = if argv.v then argv.v.length else 0
 
-if opt.params().length < 3
-  return help()
-
-to = cwd = process.cwd()
-from = path.join(cwd, opt.params().pop())
-verbosity = 0
-
-opt.getopt (opt, param) ->
-  switch opt
-    when "h"
-      return help()
-    when "o"
-      to = param[0]
-    when "v"
-      verbosity = param
-
-diurna.build from, to, verbosity
+if argv.i
+  importer(argv.i, argv._)
+else if argv._.length
+  diurna.build path.resolve(cwd, argv._[0]), path.resolve(cwd, argv.o), verbosity

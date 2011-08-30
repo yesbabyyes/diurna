@@ -21,18 +21,19 @@
   },
   "dependencies": {
     "docco": "0.3.0",
-    "eco": "1.0.3",
+    "eco": "1.1.0-rc-1",
     "jasmine-node": "1.0.6",
-    "stylus": "0.13.0",
-    "nib": "0.0.8",
-    "canvas": "0.5.4",
+    "stylus": "0.15.1",
+    "nib": "0.2.0",
+    "canvas": "0.7.1",
     "jsmin": "1.0.0",
-    "coffee-script": "1.1.1",
+    "coffee-script": "1.1.2",
     "markdown": "0.2.1",
-    "stitch": "0.3.1",
-    "underscore": "1.1.6",
-    "getopt": "0.1.0",
-    "dateformat": "1.0.1-1.2.3"
+    "stitch": "0.3.2",
+    "underscore": "1.1.7",
+    "optimist": "0.2.6",
+    "dateformat": "1.0.1-1.2.3",
+    "posterous": "1.0.0"
   },
   "keywords": ["cms", "static"],
   "engines": { "node": "0.4.5" }

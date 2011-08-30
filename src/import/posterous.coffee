@@ -30,7 +30,7 @@ Posterous = require "posterous"
 transform = exports.transform = (post, index) ->
   hidden = if post.draft or post.private then "." else ""
 
-  filename: "#{hidden}#{index}. #{post.title} @(#{post.slug}).html"
+  filename: "#{hidden}#{index}. @(#{post.slug}) #{post.title}.html"
   date: new Date(post.display_date).toUTCString()
   content: post.body_cleaned or post.body
 

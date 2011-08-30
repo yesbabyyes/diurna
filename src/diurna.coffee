@@ -112,13 +112,17 @@ buildPages = (from, to) ->
         else if extension is ".md"
           node.type = if file is "index.md" then "index" else "page"
           pages[filePath] = node
+        else if extension is ".html"
+          node.type = if file is "index.html" then "index" else "page"
+          pages[filePath] = node
         else if extension is ".eco"
           node.type = "template"
         else
           link filePath, path.join(options.outDir, parent.path, file)
 
       for page, node of pages
-        basename = path.basename(page, ".md")
+        format = path.extname(page)
+        basename = path.basename(page, format)
         templates = if parent.templates then [].concat parent.templates else []
         pageTemplate = path.join(currentDir, "#{basename}.eco")
         templates.push pageTemplate if path.existsSync pageTemplate
@@ -128,8 +132,10 @@ buildPages = (from, to) ->
           parent: parent
           root: options.root
 
+        body = read(page)
+        body = markdown.parse(body) if format is ".md"
         buildPage
-          body: markdown.parse read(page)
+          body: body
           directory: path.join(options.outDir, parent.path)
           layout: path.join(options.baseDir, "layout.eco")
           templates: templates

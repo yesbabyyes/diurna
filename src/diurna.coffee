@@ -48,14 +48,18 @@ slugify = (str) ->
 buildPages = (from, to) ->
   # Parse the title from a filename, meaning strip any leading numbers,
   # if followed by period or dash.
+  # Also creates a slug, or parses a custom slug if specified.
   #
   # > parseTitle("1. My cool blog post")
-  # My cool blog post
+  # [my-cool-blog-post, My cool blog post]
   # > parseTitle("1 My cool blog post")
-  # 1 My cool blog post
+  # [1-my-cool-blog-post, 1 My cool blog post]
+  # > parseTitle("2. @(custom-slug) Really cool")
+  # [custom-slug, Really cool]
   parseTitle = (filename) ->
-    re = /^(?:\d+\s*(?:\.|-)\s*)?(.*)/
-    filename.match(re)[1]
+    re = /^(?:\d+\s*(?:\.|-)\s*)?(?:@\((.*)\)\s+)?(.*)/
+    [slug, title] = filename.match(re)[1..]
+    [slug or slugify(title), title]
 
   filenames = (basename) ->
     if basename is "index"
@@ -69,8 +73,7 @@ buildPages = (from, to) ->
 
   createNode = (parent, file) ->
     node = parent.files[file] = {}
-    node.title = parseTitle path.basename(file, path.extname(file))
-    node.name = slugify(node.title)
+    [node.name, node.title] = parseTitle path.basename(file, path.extname(file))
     node.path = path.join parent.path, node.name
     node.filePath = path.join parent.filePath, file
     return node

@@ -6,8 +6,8 @@ markdown   = require "markdown"
 eco        = require "eco"
 stylus     = require "stylus"
 stitch     = require "stitch"
-formatDate = require "dateformat"
 _          = require "underscore"
+helpers    = require "./helpers"
 
 _verbosity = 0
 
@@ -153,16 +153,6 @@ buildPages = (from, to) ->
 getTemplate = _.memoize (template) -> require template
 
 buildPage = (options) ->
-  helpers =
-    nav: (root) -> (node for key, node of root.files when node.type in ["directory", "page"])
-    include: (file) -> read path.join(options.directory, file)
-    formatDate: formatDate
-    humanDate: (date) ->
-      day = 24 * 60 * 60 * 1000
-      diff = new Date() - date
-      format = if diff < day then "HH:MM" else "yyyy-mm-dd HH:MM"
-      formatDate date, format
-
   render = (templates, body) ->
     return body unless templates.length
 

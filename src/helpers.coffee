@@ -2,7 +2,7 @@ exports.nav = (root) -> (node for key, node of root.files when node.type in ["di
 
 exports.include = (file) -> read path.join(options.directory, file)
 
-exports.formatDate = require "dateformat"
+exports.formatDate = formatDate = require "dateformat"
 
 exports.humanDate = (date) ->
   day = 24 * 60 * 60 * 1000

@@ -150,8 +150,6 @@ buildPages = (from, to) ->
     outDir: to
   , root
 
-getTemplate = _.memoize (template) -> require template
-
 buildPage = (options) ->
   render = (templates, body) ->
     return body unless templates.length
@@ -164,7 +162,7 @@ buildPage = (options) ->
     context.body = body if body?
 
     [remainingTemplates..., template] = templates
-    render remainingTemplates, getTemplate(template)(context)
+    render remainingTemplates, require(template)(context)
 
   body = render options.templates, options.body
 

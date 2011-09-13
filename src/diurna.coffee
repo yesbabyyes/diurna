@@ -16,6 +16,8 @@ RESERVED_NAMES = [
   "scripts"
 ]
 
+exports.skeleton = path.resolve(__dirname, "..", "example")
+
 exports.build = (from, to, verbosity) ->
   _verbosity = verbosity if verbosity
 

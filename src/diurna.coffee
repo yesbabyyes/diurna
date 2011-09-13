@@ -25,7 +25,7 @@ exports.build = (from, to, verbosity) ->
   styles = path.join(from, "styles", "main.styl")
 
   path.exists scripts, (exists) ->
-    buildScripts scripts, path.join(to, "scripts", "main.js") if exists
+    buildScripts scripts, path.join(to, "scripts", "app.js") if exists
 
   path.exists styles, (exists) ->
     buildStyles styles, path.join(to, "styles", "main.css") if exists

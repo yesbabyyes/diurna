@@ -16,7 +16,7 @@
     <header id=main-header>
       <h1>Acta Diurna</h1>
       <nav>
-        <ul><li<%= " class=current" if @path is "" %>><a href="/">Home</a></li><% for dir in @dirs: %><li<%= " class=current" if @path[0...dir.path.length] is dir.path %>><a href="/<%= dir.path %>" title="<%= dir.title %>" data-mtime="<%= @mtime.getTime() / 1000 %>"><%= dir.title %></a></li><% end %></ul>
+        <ul><li<%= " class=current" if @path is "" %>><a href="/">Home</a></li><% for dir in @dirs: %><li<%= " class=current" if @path[0...dir.path.length] is dir.path %>><a href="/<%= dir.path %>" title="<%= dir.title %>" data-mtime="<%= dir.mtime.getTime() / 1000 %>"><%= dir.title %></a></li><% end %></ul>
       </nav>
     </header>
     <section id=content>

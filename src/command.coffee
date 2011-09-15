@@ -13,6 +13,7 @@ options =
   v:
     alias: "verbose"
     description: "Verbose output"
+    boolean: true
   i:
     alias: "import"
     description: "Blog platform to import from (posterous)"
@@ -30,9 +31,7 @@ importer = require "./import"
 
 cwd = process.cwd()
 
-verbosity = if argv.v then argv.v.length else 0
-
 if argv.i
   importer(argv.i, argv._)
 else if argv._.length
-  diurna.build path.resolve(cwd, argv._[0]), path.resolve(cwd, argv.o), verbosity
+  diurna.build path.resolve(cwd, argv._[0]), path.resolve(cwd, argv.o), argv.v

@@ -11,6 +11,6 @@
 <% end %>
 <% unless @suppressAside: %>
 <aside class=nav><nav class=sub>
-  <% if @siblings.length: %><ul><% for sibling in @siblings: %><li<%= " class=current" if sibling.path is @path %>><a href="/<%= sibling.path %>"><%= sibling.title %></a></li><% end %></ul><% end %>
+  <% if @siblings.length: %><ul><% for sibling in @siblings: %><li<%= " class=current" if sibling.path is @path %>><a href="/<%= sibling.path %>" title="<%= sibling.title %>" data-mtime="<%= sibling.mtime.getTime() / 1000 %>"><%= sibling.title %></a></li><% end %></ul><% end %>
 </nav></aside>
 <% end %>

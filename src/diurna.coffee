@@ -116,9 +116,11 @@ buildPages = (from, to) ->
           parent.includes.push file
         else if extension is ".md"
           node.type = if file is "index.md" then "index" else "page"
+          node.body = markdown.parse(read(filePath))
           pages[filePath] = node
         else if extension is ".html"
           node.type = if file is "index.html" then "index" else "page"
+          node.body = read(filePath)
           pages[filePath] = node
         else if extension is ".eco"
           node.type = "template"
@@ -137,10 +139,8 @@ buildPages = (from, to) ->
           parent: parent
           root: options.root
 
-        body = read(page)
-        body = markdown.parse(body) if format is ".md"
         buildPage
-          body: body
+          body: node.body
           directory: path.join(options.outDir, parent.path)
           layout: path.join(options.baseDir, "layout.eco")
           templates: templates

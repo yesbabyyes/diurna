@@ -76,7 +76,9 @@ buildPages = (from, to) ->
   createNode = (parent, file) ->
     node = parent.files[file] = {}
     [node.name, node.title] = parseTitle path.basename(file, path.extname(file))
-    node.path = path.join parent.path, node.name
+    name = if node.name is "index" then "" else node.name
+    node.path = path.join parent.path, name
+    node.path = "" if node.path is "."
     node.filePath = path.join parent.filePath, file
     return node
 

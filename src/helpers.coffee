@@ -1,11 +1,22 @@
+path = require "path"
+
 exports.nav = (root) -> (node for key, node of root.files when node.type in ["directory", "page"])
 
 exports.include = (file) -> read path.join(options.directory, file)
 
-exports.formatDate = formatDate = require "dateformat"
+exports.formatDate = require "dateformat"
 
-exports.humanDate = (date) ->
-  day = 24 * 60 * 60 * 1000
-  diff = new Date() - date
-  format = if diff < day then "HH:MM" else "yyyy-mm-dd HH:MM"
-  formatDate date, format
+exports.render = (obj, extraContext) ->
+  _ = require "underscore"
+  context = {}
+  _.extend(context, @)
+  _.extend(context, obj)
+  _.extend(context, extraContext) if extraContext
+  require(@parent.templates[0])(context)
+
+exports.sort = (items, field, reverse) ->
+  value = if reverse then -1 else 1
+  [].concat(items).sort (a, b) ->
+    if a[field] > b[field] then value
+    else if a[field] < b[field] then -value
+    else 0

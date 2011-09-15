@@ -1,4 +1,4 @@
-module.exports = (links, content) ->
+module.exports = (links, content, callback) ->
   pages = {}
 
   render = (page, navigateTo) ->
@@ -19,6 +19,7 @@ module.exports = (links, content) ->
     # Return path with trailing slash and content.html
     p + "content.html"
 
+  $body = $("body")
   $(links).live "click", (e) ->
     $anchor = $(e.currentTarget)
     path = $anchor.attr("href")
@@ -28,8 +29,11 @@ module.exports = (links, content) ->
     key = path + mtime
     if key of pages
       render(pages[key], true)
+      callback($anchor, pages[key]) if callback
     else
+      $body.addClass("progress")
       $.get contentPath(path), {mtime}, (response, status, xhr) ->
+        $body.removeClass("progress")
         if status in ["success", "notmodified"]
           page =
             url: path
@@ -38,6 +42,6 @@ module.exports = (links, content) ->
           
           pages[key] = page
           render(page, true)
+          callback($anchor, page) if callback
 
     e.preventDefault()
-

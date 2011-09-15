@@ -75,15 +75,37 @@ buildPages = (from, to) ->
 
   createNode = (parent, file) ->
     node = parent.files[file] = {}
+    node.parent = parent
     [node.name, node.title] = parseTitle path.basename(file, path.extname(file))
     name = if node.name is "index" then "" else node.name
     node.path = path.join parent.path, name
     node.path = "" if node.path is "."
     node.filePath = path.join parent.filePath, file
-    return node
+    node
+
+  processPage = (page, node, options, currentDir) ->
+    parent = node.parent
+    format = path.extname(page)
+    basename = path.basename(page, format)
+    templates = if parent.templates then [].concat parent.templates else []
+    pageTemplate = path.join(currentDir, "#{basename}.eco")
+    templates.push pageTemplate if path.existsSync pageTemplate
+    context = {}
+    _.extend context, node
+    _.extend context,
+      root: options.root
+
+    buildPage
+      body: node.body
+      directory: path.join(options.outDir, parent.path)
+      layout: options.layout
+      templates: templates
+      filenames: filenames(node.name)
+      context: context
 
   traverse = (options, parent) ->
     options.root ?= parent
+    options.layout ?= path.join(options.baseDir, "layout.eco")
     currentDir = path.join(options.baseDir, parent.filePath)
 
     fs.readdir currentDir, (err, files) ->
@@ -129,25 +151,7 @@ buildPages = (from, to) ->
         else
           link filePath, path.join(options.outDir, parent.path, file)
 
-      for page, node of pages
-        format = path.extname(page)
-        basename = path.basename(page, format)
-        templates = if parent.templates then [].concat parent.templates else []
-        pageTemplate = path.join(currentDir, "#{basename}.eco")
-        templates.push pageTemplate if path.existsSync pageTemplate
-        context = {}
-        _.extend context, node
-        _.extend context,
-          parent: parent
-          root: options.root
-
-        buildPage
-          body: node.body
-          directory: path.join(options.outDir, parent.path)
-          layout: path.join(options.baseDir, "layout.eco")
-          templates: templates
-          filenames: filenames(node.name)
-          context: context
+      processPage(page, node, options, currentDir) for page, node of pages
 
       for node in dirNames
         node.templates = parent.templates
@@ -248,4 +252,3 @@ mkdirs = (pathName) ->
 
 log = ->
   console.log.apply null, arguments if _verbosity
-

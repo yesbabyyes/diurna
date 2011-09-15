@@ -1,0 +1,419 @@
+/*
+* Skeleton V1.1
+* Copyright 2011, Dave Gamache
+* www.getskeleton.com
+* Free to use under the MIT license.
+* http://www.opensource.org/licenses/mit-license.php
+* 8/17/2011
+*
+* Modified as a stylus stylesheet with em-based vertical sizes preserving
+* vertical a vertical rhythm with multiples of 1.5em by Hansson & Larsson
+* http://hanssonlarsson.se/
+*/
+
+/* Table of Content
+==================================================
+    #Reset & Basics
+    #Basic Styles
+    #Site Styles
+    #Typography
+    #Links
+    #Lists
+    #Images
+    #Buttons
+    #Tabs
+    #Forms
+    #Misc */
+
+/* #Reset & Basics (Inspired by E. Meyers)
+================================================== */
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video
+  margin 0
+  padding 0
+  border 0
+  font-size 100.1%
+  font inherit
+  vertical-align baseline
+
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section
+  display block
+
+body
+  line-height 1
+
+ol, ul
+  list-style none
+
+blockquote, q
+  quotes none
+
+blockquote:before, blockquote:after, q:before, q:after
+  content none
+
+table
+  border-collapse collapse
+  border-spacing 0
+
+/* #Basic Styles
+================================================== */
+body
+  background #fff
+  font font_size sans_serif_font
+  color #444
+  // Fix for webkit rendering
+  -webkit-font-smoothing antialiased
+  -webkit-text-size-adjust 100%
+  &.rtl
+    direction rtl
+
+/* #Typography
+================================================== */
+h1, h2, h3, h4, h5, h6
+  color #181818
+  font-family header_font
+  font-weight normal
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a
+  font-weight inherit
+
+h1
+  font-size 4em
+  line-height 1.125em
+  margin-bottom 0.75em
+
+h2
+  font-size 2.67em
+  line-height 1.125em
+  margin-bottom 1.125em
+
+h3
+  font-size 2em
+  line-height 1.25em
+  margin-bottom 0.5em
+
+h4
+  font-size 1.5em
+  line-height 1em
+  margin-bottom 1.5em
+
+h5
+  font-size 1.25em
+  line-height 1.2em
+
+h6
+  font-size 1em
+  line-height 1.5em
+
+.subheader
+  color #777
+
+p
+  margin 0 0 1.5em 0
+
+p img
+  margin 0
+
+p.lead
+  font-size 1.33em
+  line-height 1.125em
+  color #777
+
+em
+  font-style italic
+
+strong
+  font-weight bold
+  color #333
+
+small
+  font-size 75%
+
+/* Blockquotes */
+blockquote, blockquote p
+  font-size 1.25em
+  line-height 1.2em
+  color #777
+  font-style italic
+
+blockquote
+  margin 0 0 1em
+  padding 0.5em 20px 0 19px
+  border solid #ddd
+  border-width 0 0 0 1px
+  body.rtl &
+    padding-left 20px
+    padding-right 19px
+    border-width 0 1px 0 0
+
+blockquote cite
+  display block
+  font-size 0.75em
+  line-height 2em
+  color #555
+
+blockquote cite:before
+  content "\2014 \0020"
+
+blockquote cite a, blockquote cite a:visited, blockquote cite a:visited
+  color #555
+
+hr
+  border solid #ddd
+  border-width 1px 0 0
+  clear both
+  margin 1em 0 1.9375em
+  height 0
+
+/* #Links
+================================================== */
+a, a:visited
+  color #333
+  text-decoration underline
+  outline 0
+
+a:hover, a:focus
+  color #000
+
+p a, p a:visited
+  line-height inherit
+
+/* #Lists
+================================================== */
+ul, ol
+  margin-bottom 1.5em
+
+ul
+  list-style none outside
+
+  &.square
+    list-style square outside
+
+  &.circle
+    list-style circle outside
+
+  &.disc
+    list-style disc outside
+
+ol
+  list-style decimal
+
+ol, ul.square, ul.circle, ul.disc
+  margin-left 30px
+  body.rtl &
+    margin-left 0
+    margin-right 30px
+
+ul ul, ul ol, ol ol, ol ul
+  margin 0.4em 0 0.46em 30px
+  font-size 87.5%
+  body.rtl &
+    margin-left 0
+    margin-right 30px
+
+  li
+    margin-bottom 0.5em
+
+li
+  line-height 1.5em
+
+ul.large li
+  margin-bottom 0.5em
+
+img.scale-with-grid
+  max-width 100%
+  height auto
+
+a.button, button, input[type="submit"], input[type="reset"], input[type="button"]
+  background #eee linear-gradient-image(22px, rgba(255,255,255,.2) 0%,rgba(0,0,0,.2) 100%)
+  background linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(0,0,0,.2) 100%)
+  border 1px solid #aaa
+  border-top 1px solid #ccc
+  border-left 1px solid #ccc
+  padding 0.125em 12px
+  border-radius 3px
+  color #444
+  display inline-block
+  font-size 0.75em
+  font-weight bold
+  text-decoration none
+  text-shadow 0 1px rgba(255, 255, 255, .75)
+  cursor pointer
+  margin-bottom 1.5em
+  line-height 1.85em
+  font-family sans_serif_font
+
+a.button:hover, button:hover, input[type="submit"]:hover, input[type="reset"]:hover, input[type="button"]:hover
+  background #222 linear-gradient-image(18px, rgba(255,255,255,.3) 0%,rgba(0,0,0,.3) 100%)
+  background linear-gradient(top, rgba(255,255,255,.3) 0%,rgba(0,0,0,.3) 100%)
+  border 1px solid #888
+  border-top 1px solid #aaa
+  border-left 1px solid #aaa
+
+a.button:active, button:active, input[type="submit"]:active, input[type="reset"]:active, input[type="button"]:active
+  border 1px solid #666
+  background #222 linear-gradient-image(18px, rgba(255,255,255,.35) 0%,rgba(10,10,10,.4) 100%)
+  background linear-gradient(top, rgba(255,255,255,.35) 0%,rgba(10,10,10,.4) 100%)
+
+.button.full-width, button.full-width, input[type="submit"].full-width, input[type="reset"].full-width, input[type="button"].full-width
+  width 100%
+  padding-left 0 !important
+  padding-right 0 !important
+  text-align center
+
+ul.tabs
+  display block
+  margin 0 0 1.375em 0
+  padding 0
+  border-bottom solid 1px #ddd
+
+ul.tabs li
+  display block
+  width auto
+  height 1.5em
+  padding 0
+  float left
+  margin-bottom 0
+  body.rtl &
+    float right
+
+ul.tabs li a
+  display block
+  text-decoration none
+  width auto
+  height 1.65em
+  padding 0px 20px
+  line-height 1.7em
+  border solid 1px #ddd
+  border-width 1px 1px 0 0
+  margin 0
+  background #f5f5f5
+  font-size 0.875em
+  body.rtl &
+    border-right 0
+    border-left 1px
+
+ul.tabs li a.active
+  background #fff
+  height 1.3125em
+  position relative
+  top -4px
+  padding-top 4px
+  border-left-width 1px
+  margin 0 0 0 -1px
+  color #111
+  border-radius top left 2px, top right 2px
+  body.rtl &
+    border-left-width 0
+    border-right-width 1px
+    margin-left 0
+    margin-right -1px
+
+ul.tabs li:first-child a.active
+  margin-left 0
+  body.rtl &
+    margin-right 0
+
+ul.tabs li:first-child a
+  border-width 1px 1px 0 1px
+  border-radius top left 2px
+  body.rtl &
+    border-radius none
+    border-radius top right 2px
+
+ul.tabs li:last-child a
+  border-radius top right 2px
+  body.rtl &
+    border-radius none
+    border-radius top left 2px
+
+ul.tabs-content
+  margin 0
+  display block
+
+ul.tabs-content > li
+  display none
+
+ul.tabs-content > li.active
+  display block
+
+ul.tabs:before, ul.tabs:after
+  content '\0020'
+  display block
+  overflow hidden
+  visibility hidden
+  width 0
+  height 0
+
+ul.tabs:after
+  clear both
+
+ul.tabs
+  zoom 1
+
+/* #Forms
+================================================== */
+form
+  margin-bottom 1.5em
+
+fieldset
+  margin-bottom 1.5em
+
+input[type="text"], input[type="password"], input[type="email"], textarea, select
+  border 1px solid #ccc
+  padding 0.29em 4px
+  outline none
+  border-radius 2px
+  font 0.875em sans_serif_font
+  color #777
+  margin 0
+  width 210px
+  max-width 100%
+  display block
+  margin-bottom 1.5em
+  background #fff
+  &.error
+    border-color red
+    background red + #888
+  &.ok
+    border-color green
+    background green + #888
+
+select
+  padding 0
+
+input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, textarea:focus
+  border 1px solid #aaa
+  color #444
+  -moz-box-shadow 0 0 3px rgba(0,0,0,.2)
+  -webkit-box-shadow 0 0 3px rgba(0,0,0,.2)
+  box-shadow 0 0 3px rgba(0,0,0,.2)
+
+textarea
+  min-height 4.5em
+
+label, legend
+  display block
+  font-weight bold
+  font-size 0.875em
+
+select
+  width 220px
+
+input[type="checkbox"]
+  display inline
+
+label span, legend span
+  font-weight normal
+  font-size 0.875em
+  color #444
+
+/* #Misc
+================================================== */
+.remove-bottom
+  margin-bottom 0 !important
+
+.half-bottom
+  margin-bottom 0.75em !important
+
+.add-bottom
+  margin-bottom 1.5em !important

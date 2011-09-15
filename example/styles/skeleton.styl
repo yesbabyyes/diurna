@@ -1,0 +1,54 @@
+/*
+* Skeleton V1.1
+* Copyright 2011, Dave Gamache
+* www.getskeleton.com
+* Free to use under the MIT license.
+* http//www.opensource.org/licenses/mit-license.php
+* 8/17/2011
+* Modified as a stylus stylesheet with em-based vertical sizes preserving
+*
+* Modified as a stylus stylesheet with grid classes as mixins instead.
+* by Hansson & Larsson http//hanssonlarsson.se/
+*/
+
+/* #Base 960 Grid
+================================================== */
+
+container(autoClearfix = true)
+  clearfix() if autoClearfix
+  position relative
+  width 960px
+  margin-left auto
+  margin-right auto
+  padding-left 0
+  padding-right 0
+  /* Do this when possible:
+  @media only screen and (min-width: 768px) and (max-width: 969px)
+    width: 768px
+  @media only screen and (max-width: 767px)
+    width: 300px
+  @media only screen and (min-width: 480px) and (max-width: 767px)
+    width: 420px
+  */
+
+columns(columns, offset = 0, marginLeft = 10px, marginRight = 10px)
+  error("invalid margin") unless marginLeft is a "unit" and marginRight is a "unit"
+  float left
+  display inline
+  margin-left marginLeft
+  margin-right marginRight
+  if offset > 0
+    error("invalid offset " + offset) if offset > 15
+    padding-left unit(offset * 60, "px")
+  if columns is a "unit" and columns >= 1 and columns <= 16
+    width unit(40 + (columns - 1) * 60, "px")
+  else if columns is "one-third"
+    width 300px
+  else if columns is "two-thirds"
+    width 620px
+  else
+    error("invalid column value " + columns)
+
+row(autoClearfix = true)
+  clearfix() if autoClearfix
+  margin-bottom 1.5em

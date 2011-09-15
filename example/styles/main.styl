@@ -1,5 +1,69 @@
-global-reset()
-reset-html5()
+/* Table of Content
+==================================================
+    #Site Styles
+    #Page Styles
+    #Media Queries */
 
-body
-  background: yellow
+@import "rules"
+@import "base"
+@import "skeleton"
+
+/* #Site Styles
+================================================== */
+
+#main-header, #content, #main-footer
+  container()
+
+#main-header
+  margin-top 1.5em
+  margin-bottom 1.5em
+  h1
+    margin-bottom 0.375em
+  h1, nav
+    text-align center
+  nav li
+    display inline-block
+    margin-right .5em
+    body.rtl &
+      margin-right 0
+      margin-left .5em
+
+a h1
+  text-decoration none
+
+nav li
+  &.current
+    a
+      color turquoise
+
+#posts, #content > article.post
+  columns(12)
+  body.rtl &
+    float left
+
+aside.nav
+  columns(4)
+  body.rtl &
+    float right
+
+
+/* #Page Styles
+================================================== */
+
+/* #Media Queries
+================================================== */
+
+/* Smaller than standard 960 (devices and browsers) */
+@media only screen and (max-width: 959px) {}
+
+/* Tablet Portrait size to standard 960 (devices and browsers) */
+@media only screen and (min-width: 768px) and (max-width: 959px) {}
+
+/* All Mobile Sizes (devices and browser) */
+@media only screen and (max-width: 767px) {}
+
+/* Mobile Landscape Size to Tablet Portrait (devices and browsers) */
+@media only screen and (min-width: 480px) and (max-width: 767px) {}
+
+/* Mobile Portrait Size to Mobile Landscape Size (devices and browsers) */
+@media only screen and (max-width: 479px) {}

@@ -20,6 +20,10 @@ exports.skeleton = path.resolve(__dirname, "..", "example")
 
 exports.build = (from, to, verbosity) ->
   _verbosity = verbosity if verbosity
+  configFile = path.join(from, "config.json")
+  config = {}
+  if path.existsSync(configFile)
+    config = JSON.parse fs.readFileSync configFile, "utf8"
 
   scripts = path.join(from, "scripts")
   styles = path.join(from, "styles", "main.styl")
@@ -30,7 +34,7 @@ exports.build = (from, to, verbosity) ->
   path.exists styles, (exists) ->
     buildStyles styles, path.join(to, "styles", "main.css") if exists
 
-  buildPages from, to
+  buildPages config, from, to
 
 slugify = (str) ->
   replaces =
@@ -47,7 +51,7 @@ slugify = (str) ->
 
   slug.replace /[^\w-\.]/g, ''
 
-buildPages = (from, to) ->
+buildPages = (config, from, to) ->
   # Parse the title from a filename, meaning strip any leading numbers,
   # if followed by period or dash.
   # Also creates a slug, or parses a custom slug if specified.
@@ -94,6 +98,7 @@ buildPages = (from, to) ->
     _.extend context, node
     _.extend context,
       root: options.root
+    _.extend context, config
 
     buildPage
       body: node.body

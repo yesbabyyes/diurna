@@ -1,16 +1,24 @@
 module.exports = (links, content, callback) ->
   pages = {}
 
+  # Replace state immediately for back-navigation
+  window.history.replaceState
+    url: window.location.pathname
+    title: $("title").text()
+    content: $("#content").html()
+  , $("title").text(), window.location.pathname
+
   render = (page, navigateTo) ->
     $(content).html(page.content)
-    $("title").text(page.title)
     
     if navigateTo
       $("body").animate(scrollTop: 0)
       window.history.pushState(page, page.title, page.url)
 
+    callback(page) if callback
+
   window.onpopstate = (e) ->
-    return false unless e.state
+    return true unless e.state
     render(e.state, false)
 
   contentPath = (path) ->
@@ -21,19 +29,19 @@ module.exports = (links, content, callback) ->
 
   $body = $("body")
   $(links).live "click", (e) ->
+    # Only pay attention to left clicks without meta key
+    return true if e.which > 1 or e.metaKey
     $anchor = $(e.currentTarget)
     path = $anchor.attr("href")
     # We can't do this for external links
-    return if /^([a-z]+):/.test(path)
+    return true if /^([a-z]+):/.test(path)
     mtime = $anchor.data("mtime")
     key = path + mtime
     if key of pages
       render(pages[key], true)
-      callback($anchor, pages[key]) if callback
     else
-      $body.addClass("progress")
-      $.get contentPath(path), {mtime}, (response, status, xhr) ->
-        $body.removeClass("progress")
+      xhr.abort() if xhr
+      xhr = $.get contentPath(path), {mtime}, (response, status, xhr) ->
         if status in ["success", "notmodified"]
           page =
             url: path
@@ -42,6 +50,10 @@ module.exports = (links, content, callback) ->
           
           pages[key] = page
           render(page, true)
-          callback($anchor, page) if callback
+
+        xhr = null
 
     e.preventDefault()
+
+  $("body").ajaxStart -> $(this).addClass("progress")
+  $("body").ajaxStop -> $(this).removeClass("progress")

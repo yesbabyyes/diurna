@@ -6,6 +6,7 @@ options =
   h:
     alias: "help"
     description: "Show help"
+    boolean: true
   o:
     alias: "out"
     description: "Output directory"
@@ -18,20 +19,21 @@ options =
     alias: "import"
     description: "Blog platform to import from (posterous)"
 
-path = require "path"
-fs   = require "fs"
-argv = require("optimist")
+optimist = require("optimist")
         .usage(usage)
         .options(options)
         .check((argv)->
           throw "I'm not friends with #{argv.i} yet. Set up a date?" if argv.i and argv.i isnt "posterous")
-        .argv
-diurna = require "./diurna"
-importer = require "./import"
 
 cwd = process.cwd()
+argv = optimist.argv
 
-if argv.i
-  importer(argv.i, argv._)
+if argv.h
+  optimist.showHelp()
+else if argv.i
+  require("./import")(argv.i, argv._)
 else if argv._.length
+  diurna = require "./diurna"
+  path = require "path"
+
   diurna.build path.resolve(cwd, argv._[0]), path.resolve(cwd, argv.o), argv.v

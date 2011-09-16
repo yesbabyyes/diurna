@@ -56,7 +56,7 @@ exports.import = (args, next) ->
       return console.error(err) if err
 
       config =
-        name: site.name
+        sitename: site.name
         subhead: site.subhead
         hostname: site.full_hostname
 

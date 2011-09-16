@@ -1,0 +1,12 @@
+{
+    "sitename": "Acta Diurna",
+    "subhead": "Your brand new website",
+    "hostname": "example.com",
+    "author": {
+        "display_name": "Julius Caesar",
+        "nickname": "caesar",
+        "firstname": "Julius",
+        "lastname": "Caesar",
+        "profile_pic": "http://upload.wikimedia.org/wikipedia/commons/1/17/CaesarTusculum.jpg"
+    }
+}

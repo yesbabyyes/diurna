@@ -20,3 +20,6 @@ exports.sort = (items, field, reverse) ->
     if a[field] > b[field] then value
     else if a[field] < b[field] then -value
     else 0
+
+exports.url = (path) ->
+  "http://#{@hostname}/#{path if path?}"

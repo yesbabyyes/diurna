@@ -18,7 +18,6 @@ module.exports = (platform, args) ->
     for post in result.posts
       fs.writeFileSync path.join(outDir, post.filename), post.content, "utf8"
       exec "touch --date='#{post.date}' '#{post.filename.replace /'/g, "'\\''"}'", cwd: outDir, (err, stdout, stderr) ->
-        console.log stdout
         console.error stderr if err
 
     console.log "Imported #{result.posts.length} posts from #{result.config.hostname}"

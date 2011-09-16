@@ -6,7 +6,7 @@
 <!--<![endif]-->
   <head>
     <meta charset=utf-8>
-    <title><%= @title + " | " if @title and @title isnt "index" %>Acta Diurna</title>
+    <title><%= @title + " | " if @title and @title isnt "index" %><%= @sitename %></title>
     <!--[if lt IE 9]><script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <link rel=stylesheet href=/styles/main.css type="text/css" media="screen, projection">
     <meta http-equiv=X-UA-Compatible content="IE=edge,chrome=1">
@@ -14,7 +14,10 @@
   </head>
   <body class="<%= @name %>">
     <header id=main-header>
-      <h1>Acta Diurna</h1>
+      <hgroup>
+        <h1><%= @sitename %></h1>
+        <h2><%= @subhead %></h2>
+      </hgroup>
       <nav>
         <ul><li<%= " class=current" if @path is "" %>><a href="/">Home</a></li><% for dir in @dirs: %><li<%= " class=current" if @path[0...dir.path.length] is dir.path %>><a href="/<%= dir.path %>" title="<%= dir.title %>" data-mtime="<%= dir.mtime.getTime() / 1000 %>"><%= dir.title %></a></li><% end %></ul>
       </nav>

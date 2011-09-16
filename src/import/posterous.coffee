@@ -61,7 +61,8 @@ exports.import = (args, next) ->
         hostname: site.full_hostname
 
       {display_name, nickname, firstname, lastname, profile_pic, body} = site.admins[0]
-      config.author = {display_name, nickname, firstname, lastname, profile_pic}
+      config.author = {nickname, firstname, lastname, profile_pic}
+      config.author.name = display_name
       config.author.about = body
 
       posterous.get "Posts", argv.s, {}, (err, posts) ->

@@ -3,7 +3,7 @@
     "subhead": "Your brand new website",
     "hostname": "example.com",
     "author": {
-        "display_name": "Julius Caesar",
+        "name": "Julius Caesar",
         "nickname": "caesar",
         "firstname": "Julius",
         "lastname": "Caesar",

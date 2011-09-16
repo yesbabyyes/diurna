@@ -7,6 +7,7 @@
         "nickname": "caesar",
         "firstname": "Julius",
         "lastname": "Caesar",
+        "about": "Roman Emperor",
         "profile_pic": "http://upload.wikimedia.org/wikipedia/commons/1/17/CaesarTusculum.jpg"
     }
 }

@@ -59,11 +59,13 @@ exports.import = (args, next) ->
         sitename: site.name
         subhead: site.subhead
         hostname: site.full_hostname
-
-      {display_name, nickname, firstname, lastname, profile_pic, body} = site.admins[0]
-      config.author = {nickname, firstname, lastname, profile_pic}
-      config.author.name = display_name
-      config.author.about = body
+        author:
+          name: site.admins[0].display_name
+          firstname: site.admins[0].firstname
+          lastname: site.admins[0].lastname
+          nickname: site.admins[0].nickname
+          picture: site.admins[0].profile_pic
+          about: site.admins[0].body
 
       posterous.get "Posts", argv.s, {}, (err, posts) ->
         return console.error(err) if err

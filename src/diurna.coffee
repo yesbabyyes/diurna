@@ -181,6 +181,7 @@ buildPage = (options) ->
     _.extend context, helpers
     context.dirs = helpers.nav(context.root)
     context.siblings = helpers.nav(context.parent)
+    context.directory = options.directory
     context.body = body if body?
 
     [remainingTemplates..., template] = templates

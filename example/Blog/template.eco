@@ -1,15 +1,13 @@
-<% if @name is "index": %>
-  <%- @body %>
-<% else: %>
+<% if @name in ["index", "atom"]: %><%- @body %><% else: %>
 <article id="<%= @name %>" class=post>
   <header>
+    <time datetime="<%= @formatDate @mtime, "isoUtcDateTime" %>" pubdate><%= @formatDate @mtime, "yyyy-mm-dd HH:MM" %></time>
     <a href="/<%= @path %>"><h1><%= @title %></h1></a>
-    <time datetime="<%= @formatDate @ctime, "isoUtcDateTime" %>" pubdate><%= @formatDate @ctime, "yyyy-mm-dd HH:MM" %></time>
   </header>
   <%- @body %>
 </article>
 <% end %>
-<% unless @suppressAside: %>
+<% unless @name is "atom" or @suppressAside: %>
 <aside class=nav><nav class=sub>
   <% if @siblings.length: %><ul><% for sibling in @siblings: %><li<%= " class=current" if sibling.path is @path %>><a href="/<%= sibling.path %>" title="<%= sibling.title %>" data-mtime="<%= sibling.mtime.getTime() / 1000 %>"><%= sibling.title %></a></li><% end %></ul><% end %>
 </nav></aside>

@@ -67,24 +67,23 @@ buildPages = (config, from, to) ->
     [slug, title] = filename.match(re)[1..]
     [slug or slugify(title), title]
 
-  filenames = (filePath) ->
-    format = path.extname(filePath)
-    if format is ".xml" then path.basename(filePath)
+  filenames = (node) ->
+    if node.type is ".xml" then node.name + node.type
     else
-      basename = path.basename(filePath, format)
-      if basename is "index"
+      if node.name is "index"
         index: "index.html"
         content: "content.html"
       #else if ".include" in basename
       #  "#{basename.replace(".include", "")}.html"
       else
-        index: "#{basename}/index.html"
-        content: "#{basename}/content.html"
+        index: "#{node.name}/index.html"
+        content: "#{node.name}/content.html"
 
   createNode = (parent, file) ->
     node = parent.files[file] = {}
     node.parent = parent
-    [node.name, node.title] = parseTitle path.basename(file, path.extname(file))
+    node.type = path.extname(file)
+    [node.name, node.title] = parseTitle path.basename(file, node.type)
     name = if node.name is "index" then "" else node.name
     node.path = path.join parent.path, name
     node.path = "" if node.path is "."
@@ -107,7 +106,7 @@ buildPages = (config, from, to) ->
       directory: path.join(options.outDir, parent.path)
       layout: options.layout
       templates: templates
-      filename: filenames(filePath)
+      filename: filenames(node)
       context: context
 
   traverse = (options, parent) ->
@@ -237,6 +236,7 @@ buildStyles = (from, to) ->
     stylus(str)
       .set("filename", from)
       .set("compress", process.env.NODE_ENV is "production")
+      .define("url", stylus.url())
       .use(require("nib")())
       .import("nib")
       .render (err, css) ->

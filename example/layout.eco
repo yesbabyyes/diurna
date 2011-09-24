@@ -9,13 +9,15 @@
     <title><%= @title + " | " if @title and @title isnt "index" %><%= @sitename %></title>
     <!--[if lt IE 9]><script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <link rel=stylesheet href=/styles/main.css type="text/css" media="screen, projection">
+    <link rel=canonical href="<%= @url @path %>">
+    <link rel=alternate href="/blog/atom.xml" type="application/atom+xml" title="<%= @sitename %> atom feed">
     <meta http-equiv=X-UA-Compatible content="IE=edge,chrome=1">
     <meta name=viewport content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body class="<%= @name %>">
     <header id=main-header>
       <hgroup>
-        <h1><%= @sitename %></h1>
+        <a href="/"><h1><%= @sitename %></h1></a>
         <h2><%= @subhead %></h2>
       </hgroup>
       <nav>
@@ -25,7 +27,14 @@
     <section id=content>
       <%- @body %>
     </section>
-    <footer id=main-footer></footer>
+    <footer id=main-footer>
+      <article class="author">
+        <h5>About the author</h5>
+        <img src="/<%= @thumbnail @author.picture, 72 %>" class=inline>
+        <h6><%= @author.name %></h6>
+        <p><%- @author.about %></p>
+      </article>
+    </footer>
   <script src=//www.google.com/jsapi></script>
   <script>google.load("jquery", "1.6.2")</script>
   <script src=/scripts/app.js></script>

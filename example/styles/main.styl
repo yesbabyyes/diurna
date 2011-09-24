@@ -11,6 +11,27 @@
 /* #Site Styles
 ================================================== */
 
+// Sticky footer, http://www.lwis.net/journal/2008/02/08/pure-css-sticky-footer/
+html, body
+  height 100%
+
+#content
+  height 55%
+
+body > #content
+  height auto
+  min-height 55%
+
+#main-footer
+  position relative
+  z-index 10
+  height 9em
+  margin-top -9em
+
+#content
+  padding-bottom 9em
+// End sticky footer
+
 body.progress
   cursor progress
 
@@ -18,7 +39,7 @@ body.progress
   container()
 
 #main-header
-  margin-top 1.5em
+  padding-top 1.5em
   margin-bottom 1.5em
   h1
     margin-bottom 0
@@ -35,10 +56,19 @@ body.progress
       margin-right 0
       margin-left .5em
 
-a h1
+#main-footer
+  margin-bottom 1.5em
+
+header a
   text-decoration none
+  &:hover
+    text-decoration underline
 
 nav li
+  a
+    text-decoration none
+    &:hover
+      text-decoration underline
   &.current
     a
       color turquoise
@@ -48,11 +78,45 @@ nav li
   body.rtl &
     float left
 
+#posts article.post
+  margin-bottom 4.5em
+  h1
+    font-size 2.67em
+    line-height 1.125em
+    margin-bottom 1.125em
+
+article.post
+  time
+    color #aaa
+    font-family serif_font
+    font-style italic
+    float right
+    body.rtl &
+      float left
+
 aside.nav
   columns(4)
+  text-align right
   body.rtl &
     float right
+    text-align left
 
+.author
+  columns(one-third)
+  h5
+    margin-bottom 1.2em
+  h6
+    font-family sans_serif_font
+    font-weight bold
+
+img.inline
+  float left
+  margin-right 0.5em
+  margin-bottom 0.5em
+  body.rtl &
+    float right
+    margin-right 0
+    margin-left 0.5em
 
 /* #Page Styles
 ================================================== */

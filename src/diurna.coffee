@@ -67,15 +67,19 @@ buildPages = (config, from, to) ->
     [slug, title] = filename.match(re)[1..]
     [slug or slugify(title), title]
 
-  filenames = (basename) ->
-    if basename is "index"
-      index: "index.html"
-      content: "content.html"
-    #else if ".include" in basename
-    #  "#{basename.replace(".include", "")}.html"
+  filenames = (filePath) ->
+    format = path.extname(filePath)
+    if format is ".xml" then path.basename(filePath)
     else
-      index: "#{basename}/index.html"
-      content: "#{basename}/content.html"
+      basename = path.basename(filePath, format)
+      if basename is "index"
+        index: "index.html"
+        content: "content.html"
+      #else if ".include" in basename
+      #  "#{basename.replace(".include", "")}.html"
+      else
+        index: "#{basename}/index.html"
+        content: "#{basename}/content.html"
 
   createNode = (parent, file) ->
     node = parent.files[file] = {}
@@ -87,12 +91,10 @@ buildPages = (config, from, to) ->
     node.filePath = path.join parent.filePath, file
     node
 
-  processPage = (page, node, options, currentDir) ->
+  processPage = (filePath, node, options, currentDir) ->
     parent = node.parent
-    format = path.extname(page)
-    basename = path.basename(page, format)
     templates = if parent.templates then [].concat parent.templates else []
-    pageTemplate = path.join(currentDir, "#{basename}.eco")
+    pageTemplate = path.join(currentDir, "#{node.name}.eco")
     templates.push pageTemplate if path.existsSync pageTemplate
     context = {}
     _.extend context, node
@@ -105,7 +107,7 @@ buildPages = (config, from, to) ->
       directory: path.join(options.outDir, parent.path)
       layout: options.layout
       templates: templates
-      filenames: filenames(node.name)
+      filename: filenames(filePath)
       context: context
 
   traverse = (options, parent) ->
@@ -151,6 +153,10 @@ buildPages = (config, from, to) ->
           node.type = if file is "index.html" then "index" else "page"
           node.body = read(filePath)
           pages[filePath] = node
+        else if extension is ".xml"
+          node.type = "xml"
+          node.body = read(filePath)
+          pages[filePath] = node
         else if extension is ".eco"
           node.type = "template"
         else
@@ -194,11 +200,16 @@ buildPage = (options) ->
   else
     html = body
 
-  write path.join(options.directory, options.filenames.content), body, (err) ->
-    return util.error if err
+  if options.filename instanceof Object
+    write path.join(options.directory, options.filename.content), body, (err) ->
+      return util.error(err) if err
 
-  write path.join(options.directory, options.filenames.index), html, (err) ->
-    return util.error if err
+      write path.join(options.directory, options.filename.index), html, (err) ->
+        return util.error(err) if err
+  else
+    write path.join(options.directory, options.filename), body, (err) ->
+      return util.error(err) if err
+
 
 link = (src, dst) ->
   path.exists dst, (exists) ->

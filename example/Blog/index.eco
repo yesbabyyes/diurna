@@ -1,6 +1,6 @@
 <%- @body %>
 <section id="posts">
-<% for post in @sort(@siblings, "ctime", true): %>
+<% for post in @sort(@siblings, "mtime", true): %>
 <%- @render(post, suppressAside: true) %>
 <% end %>
 </section>

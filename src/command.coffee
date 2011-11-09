@@ -18,6 +18,9 @@ options =
   i:
     alias: "import"
     description: "Blog platform to import from (posterous)"
+  w:
+    alias: "watch"
+    description: "Rebuild if any file is changed"
 
 optimist = require("optimist")
         .usage(usage)
@@ -36,4 +39,4 @@ else if argv._.length
   diurna = require "./diurna"
   path = require "path"
 
-  diurna.build path.resolve(cwd, argv._[0]), path.resolve(cwd, argv.o), argv.v
+  diurna.build path.resolve(cwd, argv._[0]), path.resolve(cwd, argv.o), argv.v, argv.w

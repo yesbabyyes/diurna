@@ -18,7 +18,7 @@ RESERVED_NAMES = [
 
 exports.skeleton = path.resolve(__dirname, "..", "example")
 
-exports.build = (from, to, verbosity) ->
+exports.build = (from, to, verbosity, watch) ->
   _verbosity = verbosity if verbosity
   configFile = path.join(from, "config.json")
   config = {}
@@ -29,12 +29,31 @@ exports.build = (from, to, verbosity) ->
   styles = path.join(from, "styles", "main.styl")
 
   path.exists scripts, (exists) ->
-    buildScripts scripts, path.join(to, "scripts", "app.js") if exists
+    if exists
+      scriptBuilder = ->
+        buildScripts scripts, path.join(to, "scripts", "app.js")
+
+      scriptBuilder()
+
+      watchPath scripts, scriptBuilder if watch
 
   path.exists styles, (exists) ->
-    buildStyles styles, path.join(to, "styles", "main.css") if exists
+    if exists
+      stylesBuilder = ->
+        buildStyles styles, path.join(to, "styles", "main.css")
 
-  buildPages config, from, to
+      stylesBuilder()
+
+      watchPath styles, stylesBuilder if watch
+
+  buildPages config, from, to, watch
+
+watchPath = (path, callback) ->
+  log "Watching #{path} for changes"
+  fs.watchFile path, (curr, prev) ->
+    if curr.mtime > prev.mtime
+      log "#{path} has changed, rebuilding"
+      callback()
 
 slugify = (str) ->
   replaces =
@@ -51,7 +70,7 @@ slugify = (str) ->
 
   slug.replace /[^\w-\.]/g, ''
 
-buildPages = (config, from, to) ->
+buildPages = (config, from, to, watch) ->
   # Parse the title from a filename, meaning strip any leading numbers,
   # if followed by period or dash.
   # Also creates a slug, or parses a custom slug if specified.
@@ -121,8 +140,16 @@ buildPages = (config, from, to) ->
       dirNames = []
 
       for file in files when file not in RESERVED_NAMES
+        if file[0] is "." or file[file.length - 1] is "~"
+          log "Skipping #{file}"
+          continue
+
         filePath = path.join(currentDir, file)
         log "Processing #{filePath}"
+
+        if watch
+          watchPath filePath, ->
+            buildPages config, from, to
 
         node = createNode(parent, file)
         extension = path.extname(file)
@@ -130,10 +157,7 @@ buildPages = (config, from, to) ->
         node.ctime = stat.ctime
         node.mtime = stat.mtime
 
-        if file.indexOf(".") is 0
-          log "Skipping #{file}"
-          continue
-        else if stat.isDirectory()
+        if stat.isDirectory()
           node.type = "directory"
           node.files = []
           dirNames.push node
@@ -245,7 +269,7 @@ buildStyles = (from, to) ->
         write to, css, (err) ->
           return util.error err if err
 
-read = _.memoize (file) ->
+read = (file) ->
   try
     fs.readFileSync file, "utf8"
   catch e

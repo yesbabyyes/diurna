@@ -27,6 +27,7 @@ body > #content
   z-index 10
   height 9em
   margin-top -9em
+  padding-top 3em
 
 #content
   padding-bottom 9em
@@ -59,6 +60,21 @@ body.progress
 #main-footer
   margin-bottom 1.5em
 
+  aside
+    columns(one-third)
+
+    h5
+      color #aaa
+      font-family sans_serif_font
+      margin-bottom 1.2em
+    h6
+      font-family sans_serif_font
+      font-weight bold
+
+a.feed
+  background transparent url(icons/feed.png) no-repeat left center
+  padding-left 20px
+
 header a
   text-decoration none
   &:hover
@@ -78,21 +94,25 @@ nav li
   body.rtl &
     float left
 
-#posts article.post
-  margin-bottom 4.5em
-  h1
-    font-size 2.67em
-    line-height 1.125em
-    margin-bottom 1.125em
-
 article.post
-  time
-    color #aaa
-    font-family serif_font
-    font-style italic
-    float right
-    body.rtl &
-      float left
+  #posts &
+    margin-bottom 4.5em
+    header
+      margin-bottom 1.5em
+      h1
+        font-size 2.67em
+        line-height 1.125em
+  header
+    clearfix()
+    margin-bottom 3em
+    h1
+      margin-bottom 0
+    time
+      color #aaa
+      font-family serif_font
+      font-style italic
+      font-size 0.75em
+      line-height 2em
 
 aside.nav
   columns(4)
@@ -101,18 +121,10 @@ aside.nav
     float right
     text-align left
 
-.author
-  columns(one-third)
-  h5
-    margin-bottom 1.2em
-  h6
-    font-family sans_serif_font
-    font-weight bold
-
-img.inline
+article.post img, img.inline
   float left
-  margin-right 0.5em
-  margin-bottom 0.5em
+  margin-right 1.5em
+  margin-bottom 1.5em
   body.rtl &
     float right
     margin-right 0

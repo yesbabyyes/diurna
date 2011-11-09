@@ -1,8 +1,8 @@
 <% if @name in ["index", "atom"]: %><%- @body %><% else: %>
 <article id="<%= @name %>" class=post>
   <header>
-    <time datetime="<%= @formatDate @mtime, "isoUtcDateTime" %>" pubdate><%= @formatDate @mtime, "yyyy-mm-dd HH:MM" %></time>
     <a href="/<%= @path %>"><h1><%= @title %></h1></a>
+    <time datetime="<%= @formatDate @mtime, "isoUtcDateTime" %>" pubdate><%= @formatDate @mtime, "yyyy-mm-dd HH:MM" %></time>
   </header>
   <%- @body %>
 </article>

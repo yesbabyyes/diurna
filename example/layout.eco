@@ -28,12 +28,26 @@
       <%- @body %>
     </section>
     <footer id=main-footer>
-      <article class="author">
+      <aside class=author>
         <h5>About the author</h5>
         <img src="/<%= @thumbnail @author.picture, 72 %>" class=inline>
         <h6><%= @author.name %></h6>
         <p><%- @author.about %></p>
-      </article>
+      </aside>
+      <aside>
+        <h5>Navigation</h5>
+        <nav>
+          <ul><% for dir in @dirs: %><li<%= " class=current" if @path[0...dir.path.length] is dir.path %>><a href="/<%= dir.path %>" title="<%= dir.title %>" data-mtime="<%= dir.mtime.getTime() / 1000 %>"><%= dir.title %></a></li><% end %></ul>
+        </nav>
+      </aside>
+      <aside>
+        <h5>More</h5>
+        <ul>
+          <li><a class=feed href="/blog/atom.xml" title="<%= @sitename %> atom feed">Subscribe to <%= @sitename %></a></li>
+          <li>Built with <a href="http://github.com/hanssonlarsson/diurna">Diurna</a></li>
+          <li>Hosted with <a href="http://public-html.net/">public_html</a></li>
+        </ul>
+      <aside>
     </footer>
   <script src=//www.google.com/jsapi></script>
   <script>google.load("jquery", "1.6.2")</script>

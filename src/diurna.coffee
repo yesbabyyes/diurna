@@ -68,7 +68,7 @@ slugify = (str) ->
   slug = str.toLowerCase()
   slug = slug.replace(regex, replacement) for replacement, regex of replaces
 
-  slug.replace /[^\w-\.]/g, ''
+  slug.replace(/[^\w-\.]/g, '').replace(/-+/g, '-')
 
 buildPages = (config, from, to, watch) ->
   # Parse the title from a filename, meaning strip any leading numbers,

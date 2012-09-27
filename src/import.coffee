@@ -7,7 +7,7 @@ module.exports = (platform, args) ->
     return console.error(err) if err
 
     outDir = path.join(process.cwd(), result.config.hostname)
-    fs.mkdirSync outDir, 0755 unless path.existsSync outDir
+    fs.mkdirSync outDir, 0o755 unless path.existsSync outDir
 
     fs.writeFileSync path.join(outDir, "#{result.config.hostname}.json"),
       JSON.stringify(result.import), "utf8"

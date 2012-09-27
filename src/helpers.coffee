@@ -87,7 +87,7 @@ thumbnail = (file, width, height) ->
 
     stream.on "data", (chunk) -> out.write chunk
 
-  path.exists thumbnailPath, (exists) ->
+  fs.exists thumbnailPath, (exists) ->
     read convert unless exists
 
   thumbnailName

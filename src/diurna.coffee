@@ -26,7 +26,7 @@ exports.build = (from, to, verbosity, watch) ->
   _verbosity = verbosity if verbosity
   configFile = path.join(from, "config.json")
   config = {}
-  if path.existsSync(configFile)
+  if fs.existsSync(configFile)
     config = JSON.parse fs.readFileSync configFile, "utf8"
 
   paths =
@@ -35,7 +35,7 @@ exports.build = (from, to, verbosity, watch) ->
     images: path.join(from, "images")
     plugins: path.join(from, "plugins")
 
-  if path.existsSync paths.scripts
+  if fs.existsSync paths.scripts
     scriptBuilder = ->
       buildScripts paths.scripts, path.join(to, "scripts", "app.js")
 
@@ -43,7 +43,7 @@ exports.build = (from, to, verbosity, watch) ->
 
     watchPath paths.scripts, scriptBuilder if watch
 
-  if path.existsSync paths.styles
+  if fs.existsSync paths.styles
     stylesBuilder = ->
       buildStyles from, paths.styles, path.join(to, "styles", "main.css")
 
@@ -51,7 +51,7 @@ exports.build = (from, to, verbosity, watch) ->
 
     watchPath paths.styles, stylesBuilder if watch
 
-  if path.existsSync paths.images
+  if fs.existsSync paths.images
     imageDest = path.join(to, "images")
 
     mkdirs imageDest
@@ -59,7 +59,7 @@ exports.build = (from, to, verbosity, watch) ->
       do (file) ->
         link path.join(paths.images, file), path.join(imageDest, file)
 
-  if path.existsSync paths.plugins
+  if fs.existsSync paths.plugins
     plugins = require paths.plugins
     if 'async' of plugins
       asyncPlugins = plugins.async
@@ -131,7 +131,7 @@ buildPages = (config, from, to, watch) ->
     parent = node.parent
     templates = if parent.templates then [].concat parent.templates else []
     pageTemplate = path.join(currentDir, "#{node.name}.eco")
-    templates.push pageTemplate if path.existsSync pageTemplate
+    templates.push pageTemplate if fs.existsSync pageTemplate
     context = {}
     _.extend context, node
     _.extend context,
@@ -242,7 +242,7 @@ buildPage = (options) ->
 
   body = render options.templates, options.body
 
-  if path.existsSync options.layout
+  if fs.existsSync options.layout
     html = render [options.layout], body
   else
     html = body
@@ -258,7 +258,7 @@ buildPage = (options) ->
       return util.error(err) if err
 
 link = (src, dst) ->
-  if not path.existsSync dst
+  if not fs.existsSync dst
     mkdirs path.dirname(dst)
 
   try
@@ -302,7 +302,7 @@ read = (file) ->
 
 write = (file, str, next) ->
   if str
-    path.exists file, (exists) ->
+    fs.exists file, (exists) ->
       mkdirs path.dirname(file) unless exists
 
       log "Writing file #{file}"
@@ -313,7 +313,7 @@ mkdirs = (pathName) ->
   for dir in pathName.split("/")
     base += "#{dir}/"
 
-    unless path.existsSync base
+    unless fs.existsSync base
       log "Creating directory #{base}"
       fs.mkdirSync base, 0o755
 

@@ -1,3 +1,4 @@
+exports.version = "0.1.1"
 
 fs         = require "fs"
 path       = require "path"
@@ -7,13 +8,16 @@ eco        = require "eco"
 stylus     = require "stylus"
 stitch     = require "stitch"
 _          = require "underscore"
+async      = require "async"
 helpers    = require "./helpers"
 
 _verbosity = 0
 
 RESERVED_NAMES = [
-  "styles"
+  "images"
   "scripts"
+  "styles"
+  "plugins"
 ]
 
 exports.skeleton = path.resolve(__dirname, "..", "example")
@@ -25,28 +29,55 @@ exports.build = (from, to, verbosity, watch) ->
   if path.existsSync(configFile)
     config = JSON.parse fs.readFileSync configFile, "utf8"
 
-  scripts = path.join(from, "scripts")
-  styles = path.join(from, "styles", "main.styl")
+  paths =
+    scripts: path.join(from, "scripts")
+    styles: path.join(from, "styles", "main.styl")
+    images: path.join(from, "images")
+    plugins: path.join(from, "plugins")
 
-  path.exists scripts, (exists) ->
-    if exists
-      scriptBuilder = ->
-        buildScripts scripts, path.join(to, "scripts", "app.js")
+  if path.existsSync paths.scripts
+    scriptBuilder = ->
+      buildScripts paths.scripts, path.join(to, "scripts", "app.js")
 
-      scriptBuilder()
+    scriptBuilder()
 
-      watchPath scripts, scriptBuilder if watch
+    watchPath paths.scripts, scriptBuilder if watch
 
-  path.exists styles, (exists) ->
-    if exists
-      stylesBuilder = ->
-        buildStyles styles, path.join(to, "styles", "main.css")
+  if path.existsSync paths.styles
+    stylesBuilder = ->
+      buildStyles from, paths.styles, path.join(to, "styles", "main.css")
 
-      stylesBuilder()
+    stylesBuilder()
 
-      watchPath styles, stylesBuilder if watch
+    watchPath paths.styles, stylesBuilder if watch
 
-  buildPages config, from, to, watch
+  if path.existsSync paths.images
+    imageDest = path.join(to, "images")
+
+    mkdirs imageDest
+    for file in fs.readdirSync paths.images
+      do (file) ->
+        link path.join(paths.images, file), path.join(imageDest, file)
+
+  if path.existsSync paths.plugins
+    plugins = require paths.plugins
+    if 'async' of plugins
+      asyncPlugins = plugins.async
+      delete plugins.async
+
+    _.extend config, plugins
+
+  if asyncPlugins
+    async.parallel asyncPlugins(config), (err, results) ->
+      if err
+        console.error "Error running async plugins", err
+        process.exit 1
+      else
+        _.extend config, results
+        buildPages config, from, to, watch
+
+  else
+    buildPages config, from, to, watch
 
 watchPath = (path, callback) ->
   log "Watching #{path} for changes"
@@ -54,21 +85,6 @@ watchPath = (path, callback) ->
     if curr.mtime > prev.mtime
       log "#{path} has changed, rebuilding"
       callback()
-
-slugify = (str) ->
-  replaces =
-    'a': /[åäàáâ]/g
-    'c': /ç/g
-    'e': /[éèëê]/g
-    'i': /[ìíïî]/g
-    'u': /[üû]/g
-    'o': /[öô]/g
-    '-': new RegExp ' ', 'g'
-
-  slug = str.toLowerCase()
-  slug = slug.replace(regex, replacement) for replacement, regex of replaces
-
-  slug.replace(/[^\w-\.]/g, '').replace(/-+/g, '-')
 
 buildPages = (config, from, to, watch) ->
   # Parse the title from a filename, meaning strip any leading numbers,
@@ -84,10 +100,10 @@ buildPages = (config, from, to, watch) ->
   parseTitle = (filename) ->
     re = /^(?:\d+\s*(?:\.|-)\s*)?(?:@\((.*)\)\s+)?(.*)/
     [slug, title] = filename.match(re)[1..]
-    [slug or slugify(title), title]
+    [slug or helpers.slugify(title), title]
 
   filenames = (node) ->
-    if node.type is ".xml" then node.name + node.type
+    if node.type is "xml" then "#{node.name}.#{node.type}"
     else
       if node.name is "index"
         index: "index.html"
@@ -101,12 +117,14 @@ buildPages = (config, from, to, watch) ->
   createNode = (parent, file) ->
     node = parent.files[file] = {}
     node.parent = parent
-    node.type = path.extname(file)
-    [node.name, node.title] = parseTitle path.basename(file, node.type)
+    node.file = file
+    extension = path.extname(file)
+    node.extension = extension.toLowerCase()
+    node.filePath = path.join parent.filePath, file
+    [node.name, node.title] = parseTitle path.basename(file, extension)
     name = if node.name is "index" then "" else node.name
     node.path = path.join parent.path, name
     node.path = "" if node.path is "."
-    node.filePath = path.join parent.filePath, file
     node
 
   processPage = (filePath, node, options, currentDir) ->
@@ -117,6 +135,8 @@ buildPages = (config, from, to, watch) ->
     context = {}
     _.extend context, node
     _.extend context,
+      basePath: from
+      outPath: to
       root: options.root
     _.extend context, config
 
@@ -139,7 +159,7 @@ buildPages = (config, from, to, watch) ->
       pages = {}
       dirNames = []
 
-      for file in files when file not in RESERVED_NAMES
+      for file in files.sort() when file not in RESERVED_NAMES
         if file[0] is "." or file[file.length - 1] is "~"
           log "Skipping #{file}"
           continue
@@ -152,14 +172,13 @@ buildPages = (config, from, to, watch) ->
             buildPages config, from, to
 
         node = createNode(parent, file)
-        extension = path.extname(file)
         stat = fs.statSync(filePath)
         node.ctime = stat.ctime
         node.mtime = stat.mtime
 
         if stat.isDirectory()
           node.type = "directory"
-          node.files = []
+          node.files = {}
           dirNames.push node
         else if file is "template.eco"
           parent.templates ?= []
@@ -168,19 +187,24 @@ buildPages = (config, from, to, watch) ->
           node.type = "include"
           parent.includes ?= []
           parent.includes.push file
-        else if extension is ".md"
+        else if node.extension is ".md"
           node.type = if file is "index.md" then "index" else "page"
-          node.body = markdown.parse(read(filePath))
+          # FIXME: Fix killAllOrphans node.body = markdown.parse helpers.killAllOrphans read(filePath)
+          node.body = markdown.parse read(filePath)
           pages[filePath] = node
-        else if extension is ".html"
+        else if node.extension is ".html"
           node.type = if file is "index.html" then "index" else "page"
           node.body = read(filePath)
           pages[filePath] = node
-        else if extension is ".xml"
+        else if node.extension is ".xml"
           node.type = "xml"
           node.body = read(filePath)
           pages[filePath] = node
-        else if extension is ".eco"
+        else if node.extension.toLowerCase() in [".jpg", ".png", ".gif", ".jpeg"]
+          node.type = "image"
+          pages[filePath] = node
+          link filePath, path.join(options.outDir, parent.path, node.name + node.extension)
+        else if node.extension is ".eco"
           node.type = "template"
         else
           link filePath, path.join(options.outDir, parent.path, file)
@@ -194,7 +218,7 @@ buildPages = (config, from, to, watch) ->
   root =
     name: "__root__"
     path: ""
-    files: []
+    files: {}
 
   traverse
     baseDir: from
@@ -233,34 +257,35 @@ buildPage = (options) ->
     write path.join(options.directory, options.filename), body, (err) ->
       return util.error(err) if err
 
-
 link = (src, dst) ->
-  path.exists dst, (exists) ->
-    if not exists
-      mkdirs path.dirname(dst)
-      fs.link src, dst, (err) ->
-        return util.error err if err
-        log "Linked from #{src} to #{dst}"
+  if not path.existsSync dst
+    mkdirs path.dirname(dst)
+
+  try
+    fs.linkSync src, dst
+    log "Linked from #{src} to #{dst}"
+  catch e
+    console.error "Couldn't link #{src} to #{dst}:", e.message
 
 buildScripts = (from, to) ->
-  package = stitch.createPackage
+  pkg = stitch.createPackage
     paths: [ from ]
     compress: process.env.NODE_ENV is "production"
 
-  package.compile (err, source) ->
+  pkg.compile (err, source) ->
     return util.error err if err
 
     write to, source, (err) ->
       return util.error err if err
 
-buildStyles = (from, to) ->
+buildStyles = (base, from, to) ->
   fs.readFile from, "utf8", (err, str) ->
     return util.error err if err
 
     stylus(str)
       .set("filename", from)
       .set("compress", process.env.NODE_ENV is "production")
-      .define("url", stylus.url())
+      .define("url", stylus.url(paths: [base]))
       .use(require("nib")())
       .import("nib")
       .render (err, css) ->
@@ -276,11 +301,12 @@ read = (file) ->
     util.error "Missing file: #{file}"
 
 write = (file, str, next) ->
-  path.exists file, (exists) ->
-    mkdirs path.dirname(file) unless exists
-    
-    log "Writing file #{file}"
-    fs.writeFile file, str, next
+  if str
+    path.exists file, (exists) ->
+      mkdirs path.dirname(file) unless exists
+
+      log "Writing file #{file}"
+      fs.writeFile file, str.trim(), next
 
 mkdirs = (pathName) ->
   base = ""
@@ -289,7 +315,7 @@ mkdirs = (pathName) ->
 
     unless path.existsSync base
       log "Creating directory #{base}"
-      fs.mkdirSync base, 0755
+      fs.mkdirSync base, 0o755
 
 log = ->
   console.log.apply null, arguments if _verbosity

@@ -1,14 +1,34 @@
 fs      = require "fs"
 path    = require "path"
+util    = require "util"
 url     = require "url"
 request = require "request"
+crypto  = require "crypto"
 _       = require "underscore"
+# register markdown require extension
+require './requireMarkdown'
 
-exports.nav = (root) -> (node for key, node of root.files when node.type in ["directory", "page"])
+exports.nav = (root) ->
+ nodes = (node for key, node of root.files when node.type in ["directory", "page", "image", "index"])
+ nodes.sort (a, b) ->
+   if a.file is b.file then 0
+   else if a.type is 'index' then -1
+   else if b.type is 'index' then 1
+   else if a.file < b.file then -1
+   else 1
 
-exports.include = (file) -> read path.join(options.directory, file)
+exports.include = (file) ->
+  try
+    require(path.join @basePath, path.dirname(@filePath), file) @
+  catch e
+    console.error file, e
+    ""
 
 exports.formatDate = require "dateformat"
+
+orphanKiller = /(\w.*)[ \t]+(\S+)$/gm
+exports.killAllOrphans = (s) ->
+  s.replace(orphanKiller, "$1&nbsp;$2")
 
 exports.render = (obj, extraContext) ->
   context = {}
@@ -27,17 +47,15 @@ exports.sort = (items, field, reverse) ->
 exports.url = _.memoize (path) ->
   "http://#{@hostname}/#{path or ""}"
 
-exports.thumbnail = _.memoize (file, width, height) ->
+thumbnail = (file, width, height) ->
   height ?= width
 
-  thumbnailName = (file) =>
-    base = path.join @parent.filePath,
-      path.dirname(file),
-      path.basename(file, path.extname(file))
+  getName = (file) ->
+    base = path.join path.dirname(file), path.basename(file, path.extname(file))
     "#{base}_#{width}_#{height}.png"
 
   if /^(http(s)?|ftp):\/\//i.test(file)
-    thumbnail = thumbnailName url.parse(file).pathname[1..].replace(/\//g, "_")
+    thumbnailName = getName url.parse(file).pathname[1..].replace(/\//g, "_")
     read = (next) ->
       request.get uri: file, encoding: "binary", (err, response, body) ->
         if err or not (200 <= response.statusCode < 400)
@@ -45,27 +63,74 @@ exports.thumbnail = _.memoize (file, width, height) ->
         else
           next(new Buffer(body, "binary"))
   else
-    thumbnail = thumbnailName(file)
-    read = (next) ->
-      fs.readFile file, (err, data) ->
-        return console.error(err) if err
+    thumbnailName = getName(file)
+    read = (next) =>
+      fs.readFile path.join(@directory, path.basename(file)), (err, data) ->
+        return console.error("THUMB", err) if err
         next(data)
 
-  convert = (data) =>
+  thumbnailPath = path.join(@directory, thumbnailName)
+
+  convert = (data) ->
     Canvas = require "canvas"
     img = new Canvas.Image()
     img.src = data
     ratio = Math.min width / img.width, height / img.height
-    scaledWidth = ratio * img.width
-    scaledHeight = ratio * img.height
+    scaledWidth = Math.round ratio * img.width
+    scaledHeight = Math.round ratio * img.height
     canvas = new Canvas(scaledWidth, scaledHeight)
     ctx = canvas.getContext("2d")
     ctx.drawImage(img, 0, 0, scaledWidth, scaledHeight)
 
-    out = fs.createWriteStream path.join(@directory, thumbnail)
+    out = fs.createWriteStream thumbnailPath
     stream = canvas.createPNGStream()
 
-    stream.on "data", (chunk) -> out.write(chunk)
+    stream.on "data", (chunk) -> out.write chunk
 
-  read convert
-  thumbnail
+  path.exists thumbnailPath, (exists) ->
+    read convert unless exists
+
+  thumbnailName
+
+exports.thumbnail = _.memoize thumbnail, (args...) ->
+  args.join "::"
+
+checksumCalculator = (base) ->
+  cache = {}
+
+  (file) ->
+    unless file in cache
+      contents = fs.readFileSync path.join(base, file[1..])
+      cache[file] = crypto.createHash("md5")
+        .update(contents)
+        .digest("base64")
+        .replace(/\=/g, "").replace(/\+/g, "-").replace(/\//g, "_")
+
+    cache[file]
+
+exports.checksum = (file) ->
+  calculate = checksumCalculator @outPath
+  try
+    checksum = calculate file
+    file + "?" + checksum
+  catch e
+    file
+
+slugify = (str) ->
+  slug = str.toLowerCase()
+
+  for replacement, regex of slugify.replaces
+    slug = slug.replace(regex, replacement)
+
+  slug.replace(/[^\w-\.]/g, '').replace(/-+/g, '-')
+
+slugify.replaces =
+  'a': /[åäàáâ]/g
+  'c': /ç/g
+  'e': /[éèëê]/g
+  'i': /[ìíïî]/g
+  'u': /[üû]/g
+  'o': /[öô]/g
+  '-': new RegExp ' ', 'g'
+
+exports.slugify = slugify

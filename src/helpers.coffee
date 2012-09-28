@@ -35,7 +35,21 @@ exports.render = (obj, extraContext) ->
   _.extend(context, @)
   _.extend(context, obj)
   _.extend(context, extraContext) if extraContext
-  require(@parent.templates[0])(context)
+
+  render = (templates, body) ->
+
+    return body unless templates.length
+
+    context.body = body if body
+
+    [remaining..., template] = templates
+    render remaining, require(template)(context)
+
+  templates = @parent.templates.slice 0
+  if obj.template
+    templates.push obj.template
+
+  render templates
 
 exports.sort = (items, field, reverse) ->
   value = if reverse then -1 else 1
@@ -83,9 +97,7 @@ thumbnail = (file, width, height) ->
     ctx.drawImage(img, 0, 0, scaledWidth, scaledHeight)
 
     out = fs.createWriteStream thumbnailPath
-    stream = canvas.createPNGStream()
-
-    stream.on "data", (chunk) -> out.write chunk
+    canvas.createPNGStream().pipe out
 
   fs.exists thumbnailPath, (exists) ->
     read convert unless exists

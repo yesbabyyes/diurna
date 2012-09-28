@@ -131,7 +131,9 @@ buildPages = (config, from, to, watch) ->
     parent = node.parent
     templates = if parent.templates then [].concat parent.templates else []
     pageTemplate = path.join(currentDir, "#{node.name}.eco")
-    templates.push pageTemplate if fs.existsSync pageTemplate
+    if fs.existsSync pageTemplate
+      templates.push pageTemplate
+      node.template = pageTemplate
     context = {}
     _.extend context, node
     _.extend context,

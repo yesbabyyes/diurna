@@ -21,7 +21,6 @@ exports.include = (file) ->
   try
     require(path.join @basePath, path.dirname(@filePath), file) @
   catch e
-    console.error file, e
     ""
 
 exports.formatDate = require "dateformat"

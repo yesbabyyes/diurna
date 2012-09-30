@@ -267,7 +267,8 @@ link = (src, dst) ->
     fs.linkSync src, dst
     log "Linked from #{src} to #{dst}"
   catch e
-    console.error "Couldn't link #{src} to #{dst}:", e.message
+    if _verbosity or e.code isnt 'EEXIST'
+      console.error "Couldn't link #{src} to #{dst}:", e.message
 
 buildScripts = (from, to) ->
   pkg = stitch.createPackage

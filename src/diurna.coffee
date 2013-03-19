@@ -98,9 +98,10 @@ buildPages = (config, from, to, watch) ->
   # > parseTitle("2. @(custom-slug) Really cool")
   # [custom-slug, Really cool]
   parseTitle = (filename) ->
-    re = /^(?:\d+\s*(?:\.|-)\s*)?(?:@\((.*)\)\s+)?(.*)/
-    [slug, title] = filename.match(re)[1..]
-    [slug or helpers.slugify(title), title]
+    re = /^(?:(\d)+\s*(?:\.|-)\s*)?(?:@\((.*?)\)\s+)?(.*)/
+    [id, slug, title] = filename.match(re)[1..]
+    if id then id = parseInt id, 10
+    [id, slug or helpers.slugify(title), title]
 
   filenames = (node) ->
     if node.type is "xml" then "#{node.name}.#{node.type}"
@@ -121,7 +122,7 @@ buildPages = (config, from, to, watch) ->
     extension = path.extname(file)
     node.extension = extension.toLowerCase()
     node.filePath = path.join parent.filePath, file
-    [node.name, node.title] = parseTitle path.basename(file, extension)
+    [node.id, node.name, node.title] = parseTitle path.basename(file, extension)
     name = if node.name is "index" then "" else node.name
     node.path = path.join parent.path, name
     node.path = "" if node.path is "."
@@ -191,7 +192,6 @@ buildPages = (config, from, to, watch) ->
           parent.includes.push file
         else if node.extension is ".md"
           node.type = if file is "index.md" then "index" else "page"
-          # FIXME: Fix killAllOrphans node.body = markdown.parse helpers.killAllOrphans read(filePath)
           node.body = markdown.parse read(filePath)
           pages[filePath] = node
         else if node.extension is ".html"

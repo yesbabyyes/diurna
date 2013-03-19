@@ -25,9 +25,9 @@ exports.include = (file) ->
 
 exports.formatDate = require "dateformat"
 
-orphanKiller = /(\w.*)[ \t]+(\S+)$/gm
-exports.killAllOrphans = (s) ->
-  s.replace(orphanKiller, "$1&nbsp;$2")
+widows = /([^<>\s]+?[^\s"])\s+((?:<[^>]+>|\S)+)$/g
+exports.widont = (s) ->
+  s.replace(widows, "$1&nbsp;$2")
 
 exports.render = (obj, extraContext) ->
   context = {}
@@ -145,3 +145,5 @@ slugify.replaces =
   '-': new RegExp ' ', 'g'
 
 exports.slugify = slugify
+
+exports.groupBy = _.groupBy
